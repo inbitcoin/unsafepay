@@ -13,6 +13,17 @@ ALLOWED_ID = (16133199, 'martinoz')
 ALLOWED_COMMANDS = {'pay', 'info', 'help', 'ping', 'echo', 'add', 'balance'}
 
 
+def to_btc_str(sats):
+    return '{:.8f}'.format(Decimal(sats) / Decimal(1e8))
+
+
+def amt_to_sat(amt):
+    """Get sat or btc amt"""
+    if '.' in amt:
+        return int(Decimal(amt) * Decimal(1e8))
+    return int(amt)
+
+
 class Lncli:
     """Interface to lncli command"""
     CMD = 'lncli'
@@ -57,10 +68,6 @@ class Lncli:
         else:
             return out
 
-    @staticmethod
-    def _to_btc_str(sats):
-        return '{:.8f}'.format(Decimal(sats) / Decimal(1e8))
-
     def balance(self):
         """lncli walletbalance and channelbalance"""
         wallet = self._command('walletbalance')
@@ -68,10 +75,10 @@ class Lncli:
         rows = []
         rows.append('Wallet')
         for key in wallet:
-            rows.append('%s: %s' % (key, self._to_btc_str(wallet[key])))
+            rows.append('%s: %s' % (key, to_btc_str(wallet[key])))
         rows.append('Channel')
         for key in channel:
-            rows.append('%s: %s' % (key, self._to_btc_str(channel[key])))
+            rows.append('%s: %s' % (key, to_btc_str(channel[key])))
         return '\n'.join(rows)
 
 lncli = Lncli()
@@ -108,14 +115,14 @@ class TelegramBot(telepot.helper.ChatHandler):
             self.sender.sendMessage(' '.join(tokens[1:]))
         elif cmd == 'pay':
             if tokens[1:]:
-                amt = int(tokens[2]) if tokens[2:] else None
+                amt = amt_to_sat(tokens[2]) if tokens[2:] else None
                 self.sender.sendMessage(lncli.pay(tokens[1], amt))
         elif cmd == 'info':
             info = lncli.info()
             balance = lncli.balance()
             self.sender.sendMessage('\n'.join([info, balance]))
         elif cmd == 'add':
-            amt = int(tokens[1]) if tokens[1:] else None
+            amt = amt_to_sat(tokens[1]) if tokens[1:] else None
             self.sender.sendMessage(lncli.add(amt))
         elif cmd == 'balance':
             self.sender.sendMessage(lncli.balance())
