@@ -75,10 +75,10 @@ class Lncli:
         rows = []
         rows.append('Wallet')
         for key in wallet:
-            rows.append('%s: %s' % (key, to_btc_str(wallet[key])))
+            rows.append('%s: %s' % (key.replace('_', ' '), to_btc_str(wallet[key])))
         rows.append('Channel')
         for key in channel:
-            rows.append('%s: %s' % (key, to_btc_str(channel[key])))
+            rows.append('%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
         return '\n'.join(rows)
 
 lncli = Lncli()
