@@ -4,12 +4,13 @@ telegram bot
 """
 import subprocess
 import json
+from decimal import Decimal
 import telepot
 from telepot.delegate import per_chat_id, create_open
-from token import UNSAFEPAY_TELEGRAM
+from telegram_token import UNSAFEPAY_TELEGRAM
 
 ALLOWED_ID = (16133199, 'martinoz')
-ALLOWED_COMMANDS = {'pay', 'info', 'help', 'ping', 'echo', 'add'}
+ALLOWED_COMMANDS = {'pay', 'info', 'help', 'ping', 'echo', 'add', 'balance'}
 
 
 class Lncli:
@@ -56,6 +57,21 @@ class Lncli:
         else:
             return out
 
+    @staticmethod
+    def _to_btc_str(sats):
+        return '{:.8f}'.format(Decimal(sats) / Decimal(1e8))
+
+    def balance(self):
+        """lncli walletbalance and channelbalance"""
+        wallet = self._command('walletbalance')
+        channel = self._command('channelbalance')
+        rows = []
+        for key in wallet:
+            rows.append('%s: %s' % (key, self._to_btc_str(wallet[key])))
+        for key in channel:
+            rows.append('%s: %s' % (key, self._to_btc_str(channel[key])))
+        return '\n'.join(rows)
+
 lncli = Lncli()
 
 
@@ -97,6 +113,8 @@ class TelegramBot(telepot.helper.ChatHandler):
         elif cmd == 'add':
             amt = int(tokens[1]) if tokens[1:] else None
             self.sender.sendMessage(lncli.add(amt))
+        elif cmd == 'balance':
+            self.sender.sendMessage(lncli.balance())
 
 
 bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
