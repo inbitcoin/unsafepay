@@ -1,0 +1,735 @@
+// Copyright (C) 2018 inbitcoin s.r.l.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+syntax = "proto3";
+
+package lighter;
+
+// Unlocker service exposes a single operation used to unlock the Lightning
+// service.
+service Unlocker {
+
+    /**
+    UnlockLighter unlocks Lighter's secrets using the password choosen in
+    initialization phase. This call does not require macaroons authentication.
+    */
+    rpc UnlockLighter (UnlockLighterRequest) returns (UnlockLighterResponse);
+
+}
+
+// Lightning service exposes all LN node related operations. It activates
+// after unlocking Lighter and it requires valid macaroons, if they are
+// enabled, for each call.
+service Lightning {
+
+    /**
+    ChannelBalance returns the off-chain balance, in bits, available across all
+    channels.
+    */
+    rpc ChannelBalance (ChannelBalanceRequest) returns (ChannelBalanceResponse);
+
+    /**
+    CheckInvoice checks if a LN invoice has been paid.
+    */
+    rpc CheckInvoice (CheckInvoiceRequest) returns (CheckInvoiceResponse);
+
+    /**
+    CreateInvoice creates a LN invoice (BOLT 11).
+    */
+    rpc CreateInvoice (CreateInvoiceRequest) returns (CreateInvoiceResponse);
+
+    /**
+    DecodeInvoice returns information of a LN invoice from its payment
+    request (BOLT 11).
+    */
+    rpc DecodeInvoice (DecodeInvoiceRequest) returns (DecodeInvoiceResponse);
+
+    /**
+    GetInfo returns info about the connected LN node.
+    */
+    rpc GetInfo (GetInfoRequest) returns (GetInfoResponse);
+
+    /**
+    ListChannels returns a list of channels of the connected LN node.
+    */
+    rpc ListChannels (ListChannelsRequest) returns (ListChannelsResponse);
+
+    /**
+    ListInvoices returns a list of invoices created by the connected LN node.
+    */
+    rpc ListInvoices (ListInvoicesRequest) returns (ListInvoicesResponse);
+
+    /**
+    ListPayments returns a list of invoices the connected LN node has paid.
+    */
+    rpc ListPayments (ListPaymentsRequest) returns (ListPaymentsResponse);
+
+    /**
+    ListPeers returns a list of peers connected to the connected LN node.
+    */
+    rpc ListPeers (ListPeersRequest) returns (ListPeersResponse);
+
+    /**
+    ListTransactions returns a list of on-chain transactions of the connected
+    LN node.
+    */
+    rpc ListTransactions (ListTransactionsRequest) returns (ListTransactionsResponse);
+
+    /**
+    NewAddress creates a new bitcoin address under control of the connected LN
+    node.
+    */
+    rpc NewAddress (NewAddressRequest) returns (NewAddressResponse);
+
+    /**
+    OpenChannel tries to connect and open a channel with a peer.
+    */
+    rpc OpenChannel (OpenChannelRequest) returns (OpenChannelResponse);
+
+    /**
+    PayInvoice tries to pay a LN invoice from its payment request (BOLT 11).
+    An amount can be specified if the invoice doesn't already have it
+    included. If a description hash is included in the invoice, its preimage
+    must be included in the request.
+    */
+    rpc PayInvoice (PayInvoiceRequest) returns (PayInvoiceResponse);
+
+    /**
+    PayOnChain tries to pay a bitcoin payment request.
+    */
+    rpc PayOnChain (PayOnChainRequest) returns (PayOnChainResponse);
+
+    /**
+    WalletBalance returns the on-chain balance, in bits.
+    */
+    rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse);
+
+}
+
+message UnlockLighterRequest {
+    /**
+    Password to unlock Lighter
+    */
+    string password = 1;
+}
+
+message UnlockLighterResponse {
+}
+
+message ChannelBalanceRequest {
+}
+
+message ChannelBalanceResponse {
+    /**
+    Sum of channel balances, in bits
+    */
+    double balance = 1;
+}
+
+message CheckInvoiceRequest {
+    /**
+    SHA256 of the payment preimage
+    */
+    string payment_hash = 1;
+}
+
+message CheckInvoiceResponse {
+    /**
+    Whether the invoice has been paid
+    */
+    bool settled = 1;
+}
+
+message CreateInvoiceRequest {
+    /**
+    Invoice amount, in bits
+    */
+    double amount_bits = 1;
+    /**
+    Description of the invoice
+    */
+    string description = 2;
+    /**
+    Invoice expiration time, in seconds
+    */
+    uint64 expiry_time = 3;
+    /**
+    CTLV delay (absolute) to use for the final hop in the route
+    */
+    uint64 min_final_cltv_expiry = 4;
+    /**
+    Fallback address (on-chain) to use if the LN payment fails
+    */
+    string fallback_addr = 5;
+}
+
+message CreateInvoiceResponse {
+    /**
+    Bech32 encoded LN invoice
+    */
+    string payment_request = 1;
+    /**
+    SHA256 of the payment preimage
+    */
+    string payment_hash = 2;
+    /**
+    Timestamp of the invoice expiration
+    */
+    uint64 expires_at = 3;
+}
+
+message GetInfoRequest {
+}
+
+message DecodeInvoiceRequest {
+    /**
+    Payment request to decode
+    */
+    string payment_request = 1;
+    /**
+    Invoice description, whose hash should match the description hash
+    in the payment request (if present)
+    */
+    string description = 2;
+}
+
+message DecodeInvoiceResponse {
+    /**
+    Invoice amount (if exists), in bits
+    */
+    double amount_bits = 1;
+    /**
+    Invoice creation timestamp
+    */
+    uint64 timestamp = 2;
+    /**
+    SHA256 of the payment preimage
+    */
+    string payment_hash = 3;
+    /**
+    Description of the invoice
+    */
+    string description = 4;
+    /**
+    Identity pubkey of the payee
+    */
+    string destination_pubkey = 5;
+    /**
+    Description hash of the invoice
+    */
+    string description_hash = 6;
+    /**
+    Invoice expiration time, in seconds
+    */
+    uint64 expiry_time = 7;
+    /**
+    CTLV delay (absolute) to use for the final hop in the route
+    */
+    uint64 min_final_cltv_expiry = 8;
+    /**
+    Fallback address (on-chain) of the invoice (if exists)
+    */
+    string fallback_addr = 9;
+    /**
+    Lists of route hints to reach a node through private channels (if provided)
+    */
+    repeated RouteHint route_hints = 10;
+}
+
+message RouteHint {
+    /**
+    List of hops in a route
+    */
+    repeated HopHint hop_hints = 1;
+}
+
+message HopHint {
+    /**
+    Identity pubkey of the node
+    */
+    string pubkey = 1;
+    /**
+    Short channel ID (blockheight + txid + vout)
+    */
+    string short_channel_id = 2;
+    /**
+    Base fee of the channel, in msat
+    */
+    double fee_base_msat = 3;
+    /**
+    Amount charged per transferred satoshi, in millionths of a satoshi
+    */
+    uint32 fee_proportional_millionths = 4;
+    /**
+    Delta to use for the time-lock of the CLTV (absolute) extended to the final hop
+    */
+    uint32 cltv_expiry_delta = 5;
+}
+
+message GetInfoResponse {
+    /**
+    Node's identity pubkey
+    */
+    string identity_pubkey = 1;
+    /**
+    Node's alias
+    */
+    string alias = 2;
+    /**
+    Node's RGB color
+    */
+    string color = 3;
+    /**
+    Software version of the connected LN node
+    */
+    string version = 4;
+    /**
+    Node's current blockheight view
+    */
+    uint32 blockheight = 5;
+    /**
+    Node's network
+    */
+    string network = 6;
+    /**
+    Node's uri
+    */
+    string node_uri = 7;
+}
+
+message ListChannelsRequest {
+    /**
+    Whether to return active channels only (channel is open and peer is online)
+    */
+    bool active_only = 1;
+}
+
+message ListChannelsResponse {
+    /**
+    List of channels
+    */
+    repeated Channel channels = 1;
+}
+
+message Channel {
+    /**
+    Identity pubkey of the remote node
+    */
+    string remote_pubkey = 1;
+    /**
+    Short channel ID (blockheight + txid + vout)
+    */
+    string short_channel_id = 2;
+    /**
+    Channel ID (XOR of the funding_txid and the funding_output_index)
+    */
+    string channel_id = 3;
+    /**
+    Transaction ID of the (non-malleable) funding transaction
+    */
+    string funding_txid = 4;
+    /**
+    Total amount of funds held in the channel, in bits
+    */
+    double capacity = 5;
+    /**
+    Current balance on the local (our) side, in bits
+    */
+    double local_balance = 6;
+    /**
+    Current balance on the remote (counterparty) side, in bits
+    */
+    double remote_balance = 7;
+    /**
+    CSV delay (relative) to wait when initiating a force close of the channel
+    */
+    uint32 to_self_delay = 8;
+    /**
+    Whether the channel is private or public (announced to the network
+    and available for routing)
+    */
+    bool private = 9;
+    /**
+    Channel state (pending open, open, pending mutual/forced close or unknown)
+    */
+    ChannelState state = 10;
+    /**
+    Whether the channel is active (channel is open and peer is online)
+    */
+    bool active = 11;
+}
+
+/**
+LN channel current state.
+*/
+enum ChannelState {
+    /**
+    Channel is opening (waiting for funding tx to be confirmed)
+    */
+    PENDING_OPEN = 0;
+    /**
+    Channel is open and is ready to operate (funding tx has reached enough
+    confirmations)
+    */
+    OPEN = 1;
+    /**
+    Channel is cooperatively closing
+    */
+    PENDING_MUTUAL_CLOSE = 2;
+    /**
+    Channel is unilaterally closing
+    */
+    PENDING_FORCE_CLOSE = 3;
+    /**
+    Channel state is unknown
+    */
+    UNKNOWN = 4;
+}
+
+message ListInvoicesRequest {
+    /**
+    Maximum number of invoices to be returned (default: 200)
+    */
+    uint64 max_items = 1;
+    /**
+    Timestamp to be used as starting point for the search
+    */
+    uint64 search_timestamp = 2;
+    /**
+    Search direction - requires search_timestamp (default: ascending)
+    */
+    Order search_order = 3;
+    /**
+    Order of the returned invoices (default: ascending)
+    */
+    Order list_order = 4;
+    /**
+    Whether to include paid invoices
+    */
+    bool paid = 5;
+    /**
+    Whether to include pending invoices
+    */
+    bool pending = 6;
+    /**
+    Whether to include expired invoices
+    */
+    bool expired = 7;
+}
+
+message ListInvoicesResponse {
+    /**
+    List of invoices
+    */
+    repeated Invoice invoices = 1;
+}
+
+/**
+Order direction.
+*/
+enum Order {
+    /**
+    Ascending chronological order (oldest to newest)
+    */
+    ASCENDING = 0;
+    /**
+    Descending chronological order (newest to oldest)
+    */
+    DESCENDING = 1;
+}
+
+message Invoice {
+    /**
+    Amount of the invoice (if exists), in bits
+    */
+    double amount_bits = 1;
+    /**
+    Invoice creation timestamp
+    */
+    uint64 timestamp = 2;
+    /**
+    SHA256 of the payment preimage
+    */
+    string payment_hash = 3;
+    /**
+    Description of the invoice
+    */
+    string description = 4;
+    /**
+    Description hash of the invoice
+    */
+    string description_hash = 5;
+    /**
+    Invoice expiration time, in seconds
+    */
+    uint64 expiry_time = 6;
+    /**
+    Fallback address (on-chain) of the invoice (if exists)
+    */
+    string fallback_addr = 7;
+    /**
+    Lists of route hints to reach a node through private channels (if provided)
+    */
+    repeated RouteHint route_hints = 8;
+    /**
+    Invoice state (paid, pending or expired)
+    */
+    InvoiceState state = 9;
+    /**
+    Bech32 encoded LN invoice
+    */
+    string payment_request = 10;
+}
+
+/**
+LN invoice current state.
+*/
+enum InvoiceState {
+    /**
+    Invoice has been paid
+    */
+    PAID = 0;
+    /**
+    Invoice has not been paid yet and has not expired
+    */
+    PENDING = 1;
+    /**
+    Invoice has expired and has not been paid
+    */
+    EXPIRED = 2;
+}
+
+message ListPaymentsRequest {
+}
+
+message ListPaymentsResponse {
+    /**
+    List of payments
+    */
+    repeated Payment payments = 1;
+}
+
+message Payment {
+    /**
+    SHA256 of the payment preimage
+    */
+    string payment_hash = 1;
+    /**
+    Invoice amount, in bits
+    */
+    double amount_bits = 2;
+    /**
+    Invoice creation timestamp
+    */
+    int64 timestamp = 3;
+    /**
+    Base fee, in millisatoshi, charged for the HTLC
+    */
+    int64 fee_base_msat = 4;
+    /**
+    Proof that payment has been received
+    */
+    string payment_preimage = 5;
+}
+
+message ListPeersRequest {
+}
+
+message ListPeersResponse {
+    /**
+    List of currently connected peers
+    */
+    repeated Peer peers = 1;
+}
+
+message Peer {
+    /**
+    Identity pubkey of the peer
+    */
+    string pubkey = 1;
+    /**
+    Alias of the peer
+    */
+    string alias = 2;
+    /**
+    Address of the peer
+    */
+    string address = 3;
+    /**
+    RGB color of the peer
+    */
+    string color = 4;
+}
+
+message ListTransactionsRequest {
+}
+
+message ListTransactionsResponse {
+    /**
+    List of transactions
+    */
+    repeated Transaction transactions = 1;
+}
+
+message Transaction {
+    /**
+    Transaction hash
+    */
+    string txid = 1;
+    /**
+    Transaction amount, in bits
+    */
+    double amount_bits = 2;
+    /**
+    Number of confirmations
+    */
+    int32 num_confirmations = 3;
+    /**
+    Hash of the block the transaction was included in
+    */
+    string block_hash = 4;
+    /**
+    Height of the block the transaction was included in
+    */
+    int32 blockheight = 5;
+    /**
+    Timestamp of the transaction
+    */
+    int64 timestamp = 6;
+    /**
+    Fees paid for the transaction
+    */
+    int64 fee_sat = 7;
+    /**
+    Addresses that received funds for the transaction
+    */
+    repeated string dest_addresses = 8;
+}
+
+message NewAddressRequest {
+    /**
+    Bitcoin address type (P2WKH or NP2WKH)
+    */
+    AddressType type = 1;
+}
+
+message NewAddressResponse {
+    /**
+    Generated bitcoin address
+    */
+    string address = 1;
+}
+
+/**
+Bitcoin address types.
+*/
+enum AddressType {
+    option allow_alias = true;
+    /**
+    Nested pay to witness key hash
+    */
+    NP2WKH = 0;
+    P2SH_SEGWIT = 0;
+    /**
+    Pay to witness key hash
+    */
+    P2WKH = 1;
+    BECH32 = 1;
+}
+
+message OpenChannelRequest {
+    /**
+    Uri (identity_pubkey@host:port) of the remote peer
+    */
+    string node_uri = 1;
+    /**
+    Funding transaction amount, in bits
+    */
+    double funding_bits = 2;
+    /**
+    Amount (taken from funding_bits) to be pushed to peer, in bits
+    */
+    double push_bits = 3;
+    /**
+    Whether the channel will be private (not anonunced)
+    */
+    bool private = 4;
+}
+
+message OpenChannelResponse {
+    /**
+    Funding transaction hash
+    */
+    string funding_txid = 1;
+}
+
+message PayInvoiceRequest {
+    /**
+    Bech32 encoded LN invoice
+    */
+    string payment_request = 1;
+    /**
+    Value to be paid, in bits
+    */
+    double amount_bits = 2;
+    /**
+    Invoice description, whose hash should match the description hash
+    in the payment request (if present)
+    */
+    string description = 3;
+    /**
+    Delta to use for the time-lock of the CLTV (absolute) extended to the final hop
+    */
+    uint64 cltv_expiry_delta = 4;
+}
+
+message PayInvoiceResponse {
+    /**
+    Proof that payment has been received, initially held only by the final recipient
+    */
+    string payment_preimage = 1;
+}
+
+message PayOnChainRequest {
+    /**
+    Bitcoin destination address
+    */
+    string address = 1;
+    /**
+    Amount to be paid, in bits
+    */
+    double amount_bits = 2;
+    /**
+    Fee rate in satoshi per byte
+    */
+    int64 fee_sat_byte = 3;
+}
+
+message PayOnChainResponse {
+    /**
+    Hash of the newly created bitcoin transaction
+    */
+    string txid = 1;
+}
+
+message WalletBalanceRequest {
+}
+
+message WalletBalanceResponse {
+    /**
+    Balance of the wallet, in bits
+    */
+    double balance = 1;
+}

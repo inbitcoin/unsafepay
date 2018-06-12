@@ -1,0 +1,6 @@
+[lighter]
+host = 
+port = 
+cert = server.crt
+macaroon = admin.macaroon
+

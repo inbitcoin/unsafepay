@@ -1,0 +1,246 @@
+lightning_stub:
+
+- call: channelbalance
+  return: 2100.22
+
+- call: checkinvoice
+  return: true
+
+- call: checkinvoice
+  return: false
+  tag:
+  - unpaid
+
+- call: checkinvoice
+  return:
+   !RpcError
+    message: Not found (FIXME this is not the real message)
+  tag:
+  - notfound
+
+- call: createinvoice
+  return:
+   !CreateInvoiceResponse
+    payment_request: lnbc1u1pw02jqkpp5acwe73nnu4vlamymn8fv2dd9uk6ml9pekklxh5y962r4ryxduc8sdqqcqzpggcqcrhkwzqv9gqx0e9kpjrsapc2j5kqagaqsmdyk360jhrpwqc74lw38c2jh2ka2nj6y88tzhfu06r6n7q477mvtcprsnmxzn3mrz0sqrst4mu
+    payment_hash: 161f1bcb463f2ab51338a9c38d93abe82e9a94c3913482fce0f08ddceb7710b6
+    expires_at: 1874937518 # 10 years invoice
+
+- call: decodeinvoice
+  return:
+   !DecodeInvoiceResponse
+    amount_bits: 1000.12
+    timestamp: 1559577687 # june 19
+    payment_hash: 161f1bcb463f2ab51338a9c38d93abe82e9a94c3913482fce0f08ddceb7710b6
+    description: some beer
+    destination_pubkey: 03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95a059
+    description_hash: 981ec579fdd7048c44835756a86270d664ac44cefa552e1a97d5e2ecca97dabd
+    expiry_time: 874937518 # 10 years invoice
+    min_final_cltv_expiry: 2016
+    fallback_addr: tb1qjp2rxh9f5jkncujr7hvw5e9pa66rxpy587wc90
+    route_hints: []
+
+- call: decodeinvoice
+  return:
+   !DecodeInvoiceResponse
+    amount_bits: 1000.12
+    timestamp: 1559577687 # june 19
+    payment_hash: 161f1bcb463f2ab51338a9c38d93abe82e9a94c3913482fce0f08ddceb7710b6
+    description: ''
+    destination_pubkey: 03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95ffff
+    description_hash: ''
+    expiry_time: 874937518 # 10 years invoice
+    min_final_cltv_expiry: 2016
+    fallback_addr: tb1qjp2rxh9f5jkncujr7hvw5e9pa66rxpy587wc90
+    route_hints: []
+  tag:
+  - nodescription
+
+- call: decodeinvoice
+  return:
+   !RpcError
+    message: StatusCode.INVALID_ARGUMENT Invalid parameter "payment_request"
+  tag:
+  - error
+
+- call: getinfo
+  return:
+   !GetInfoResponse
+    identity_pubkey: 02220d035b22cdc64ed228286f4dc77622f3023c73107c87b1cc4b06dc4041d7cd
+    alias: mock
+    color: cc8020
+    version: mock/0
+    blockheight: 1000000
+    network: testnet
+    node_uri: 02220d035b22cdc64ed228286f4dc77622f3023c73107c87b1cc4b06dc4041d7cd@sette.lighter.inbitcoin.it
+
+- call: listchannels
+  return:
+    - !Channel
+      remote_pubkey: 03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95a059
+      short_channel_id: 555652x1493x1
+      channel_id: 24f996017c37cbf30dcc1d62f1cc7a815f411097b76d3778f3f606eb88bab4ca:1
+      funding_txid: 24f996017c37cbf30dcc1d62f1cc7a815f411097b76d3778f3f606eb88bab4ca
+      capacity: 167772.15
+      local_balance: 0
+      remote_balance: 167772
+      to_self_delay: 144
+      private: false
+    - !Channel
+      remote_pubkey: 030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f
+      short_channel_id: todo
+      channel_id: longer todo
+      funding_txid: 3e2848172a7a0ac47caa0143141cdb93866f95dac9b0bd1398560f092af71f91
+      capacity: 1000
+      local_balance: 400
+      remote_balance: 450
+      to_self_delay: 144
+      private: false
+
+# Active channels
+- call: listchannels
+  return:
+    - !Channel
+      remote_pubkey: 03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95a059
+      short_channel_id: 555652x1493x1
+      channel_id: 24f996017c37cbf30dcc1d62f1cc7a815f411097b76d3778f3f606eb88bab4ca:1
+      funding_txid: 24f996017c37cbf30dcc1d62f1cc7a815f411097b76d3778f3f606eb88bab4ca
+      capacity: 167772.15
+      local_balance: 0
+      remote_balance: 167772
+      to_self_delay: 144
+      private: false
+  tag:
+  - active
+
+# Private channel
+- call: listchannels
+  return:
+    - !Channel
+      remote_pubkey: 03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95a059
+      short_channel_id: 555652x1493x1
+      channel_id: 24f996017c37cbf30dcc1d62f1cc7a815f411097b76d3778f3f606eb88bab4ca:1
+      funding_txid: 24f996017c37cbf30dcc1d62f1cc7a815f411097b76d3778f3f606eb88bab4ca
+      capacity: 167772.15
+      local_balance: 0
+      remote_balance: 167772
+      to_self_delay: 144
+      private: false
+    - !Channel
+      remote_pubkey: 030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f
+      short_channel_id: todo
+      channel_id: longer todo
+      funding_txid: 3e2848172a7a0ac47caa0143141cdb93866f95dac9b0bd1398560f092af71f91
+      capacity: 1000
+      local_balance: 400
+      remote_balance: 450
+      to_self_delay: 144
+      private: true
+  tag:
+  - private
+
+
+- call: listinvoices
+  return:
+   - !Invoice
+     amount_bits: 7
+     timestamp: 1559665481
+     payment_hash: 7a569fb8d75d5e2957473dea4589111a243254018b11b9a59c1ae7297478e270
+     description: some food
+     description_hash: 273988cb1bc2f46da26a566e49e5715db6a12b1cd2f6010b9303d75812d7d625
+     expiry_time: 874938518 # 10 years invoice
+     fallback_addr: 1Bb238eB964w6s5RxsKc3nzK3bPN75pji9
+     route_hints: []
+     state: 0  # InvoiceState.PAID
+
+
+- call: listinvoices
+  return:
+   - !Invoice
+     amount_bits: 7
+     timestamp: 1559665481
+     payment_hash: 7a569fb8d75d5e2957473dea4589111a243254018b11b9a59c1ae7297478e270
+     description: some food
+     description_hash: 273988cb1bc2f46da26a566e49e5715db6a12b1cd2f6010b9303d75812d7d625
+     expiry_time: 874938518 # 10 years invoice
+     fallback_addr: 1Bb238eB964w6s5RxsKc3nzK3bPN75pji9
+     route_hints: []
+     state: 1  # InvoiceState.PENDING
+   - !Invoice
+     amount_bits: 7
+     timestamp: 1559665481
+     payment_hash: 7a569fb8d75d5e2957473dea4589111a243254018b11b9a59c1ae7297478e270
+     description: some food
+     description_hash: 273988cb1bc2f46da26a566e49e5715db6a12b1cd2f6010b9303d75812d7d625
+     expiry_time: 874938518 # 10 years invoice
+     fallback_addr: 1Bb238eB964w6s5RxsKc3nzK3bPN75pji9
+     route_hints: []
+     state: 0  # InvoiceState.PAID
+  tag:
+  - unpaid
+
+- call: listpayments
+  return:
+   payments:
+    - !Payment
+     payment_hash: 273988cb1bc2f46da26a566e49e5715db6a12b1cd2f6010b9303d75812d7d626
+     amount_bits: 56.78
+     timestamp: 1559666250
+     fee_base_msat: 1000
+     payment_preimage: 273988cb1bc2f46da26a566e49e5715db6a12b1cd2f6010b9303d75812d7d627
+  returntype: ListPaymentsResponse
+
+- call: listpeers
+  return:
+   - !Peer
+     pubkey: 030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f
+     alias: Mock peer
+     address: 127.0.0.1:7777
+
+- call: listtransactions
+  return:
+   - !Transaction
+     txid: cbe5ce4faebba6e3baa981d1618091c8b10133abd0cd1b8719dad37b049d3826
+     amount_bits: 22
+     num_confirmations: 4
+     block_hash: 95131a9dbb64383e53bd25f1edb1beca2726b63c2ffe32d32d66d21b6f8e90e2
+     blockheight: 999999
+     timestamp: 1559670113
+     fee_sat: 2234
+     dest_addresses: 1Bb238eB964w6s5RxsKc3nzK3bPN75pji9
+
+- call: newaddress
+  return: tb1qjp2rxh9f5jkncujr7hvw5e9pa66rxpy587wc90
+
+- call: openchannel
+  return:
+   funding_txid: 3e2848172a7a0ac47caa0143141cdb93866f95dac9b0bd1398560f092af71f91
+  returntype: OpenChannelResponse
+
+- call: payinvoice
+  return:
+   payment_preimage: 2b982ab0809ac4aa42c6c63a469ae08a678cef903b5a1e7df06d2337f986e95e
+  returntype: PayInvoiceResponse
+
+- call: payonchain
+  return:
+   txid: 09798396590c322604138a1c282179895cf6e02170f229ac72f7c665926a4ed8
+  returntype: PayOnChainResponse
+
+#- call: unlocklighter
+#  #return: UnlockLighterResponse
+
+- call: walletbalance
+  return: 82.8
+
+# No balance
+- call: channelbalance
+  return: 0
+  tag:
+  - nobalance
+
+- call: walletbalance
+  return: 0
+  tag:
+  - nobalance
+
+pay_req: lnbc1u1pw02jqkpp5acwe73nnu4vlamymn8fv2dd9uk6ml9pekklxh5y962r4ryxduc8sdqqcqzpggcqcrhkwzqv9gqx0e9kpjrsapc2j5kqagaqsmdyk360jhrpwqc74lw38c2jh2ka2nj6y88tzhfu06r6n7q477mvtcprsnmxzn3mrz0sqrst4mu
