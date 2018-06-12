@@ -66,8 +66,10 @@ class Lncli:
         wallet = self._command('walletbalance')
         channel = self._command('channelbalance')
         rows = []
+        rows.append('Wallet')
         for key in wallet:
             rows.append('%s: %s' % (key, self._to_btc_str(wallet[key])))
+        rows.append('Channel')
         for key in channel:
             rows.append('%s: %s' % (key, self._to_btc_str(channel[key])))
         return '\n'.join(rows)
@@ -109,12 +111,12 @@ class TelegramBot(telepot.helper.ChatHandler):
                 amt = int(tokens[2]) if tokens[2:] else None
                 self.sender.sendMessage(lncli.pay(tokens[1], amt))
         elif cmd == 'info':
-            self.sender.sendMessage(lncli.getinfo())
+            info = lncli.getinfo()
+            balance = lncli.balance()
+            self.sender.sendMessage('\n'.join([info, balance]))
         elif cmd == 'add':
             amt = int(tokens[1]) if tokens[1:] else None
             self.sender.sendMessage(lncli.add(amt))
-        elif cmd == 'balance':
-            self.sender.sendMessage(lncli.balance())
 
 
 bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
