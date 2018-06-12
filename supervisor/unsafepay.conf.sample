@@ -1,0 +1,5 @@
+[program:unsafepay]
+command=/path/venv/bin/python /path/unsafepay/bot.py
+director=/path/unsafepay/
+environment=LNDDIR=/home/lightning/.lnd
+user=lightning

@@ -1,0 +1,7 @@
+telepot==12.7
+pyzbar==0.1.7
+Pillow==7.0.0
+qrcode==6.0
+requests==2.22.0
+grpcio==1.15.0
+grpcio-tools==1.15.0
