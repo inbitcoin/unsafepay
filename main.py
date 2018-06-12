@@ -26,7 +26,7 @@ class Lncli:
         print(out)
         print(err)
 
-    def getinfo(self):
+    def info(self):
         obj = self._command('getinfo')
         rows = [obj['alias'],
                 'Active channels: %s' % obj['num_active_channels'],
@@ -111,12 +111,14 @@ class TelegramBot(telepot.helper.ChatHandler):
                 amt = int(tokens[2]) if tokens[2:] else None
                 self.sender.sendMessage(lncli.pay(tokens[1], amt))
         elif cmd == 'info':
-            info = lncli.getinfo()
+            info = lncli.info()
             balance = lncli.balance()
             self.sender.sendMessage('\n'.join([info, balance]))
         elif cmd == 'add':
             amt = int(tokens[1]) if tokens[1:] else None
             self.sender.sendMessage(lncli.add(amt))
+        elif cmd == 'balance':
+            self.sender.sendMessage(lncli.balance())
 
 
 bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
