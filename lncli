@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+import sys
+
+getinfo = '{"identity_pubkey":"0229bfbea3f31a9b720b9da68e20b53c692860769e446f25daba27f6e9e045ea63","alias":"B Boo","num_pending_channels":0,"num_active_channels":3,"num_peers":7,"block_height":527017,"block_hash":"0000000000000000002072fd092dd211519cff013a46c9ba216df1899f344ce8","synced_to_chain":true,"testnet":false,"chains":["bitcoin"],"uris":["0229bfbea3f31a9b720b9da68e20b53c692860769e446f25daba27f6e9e045ea63@93.40.7.67:9735"],"best_header_timestamp":"1528740387","version":"0.4.2-beta commit=7cf5ebe2650b6798182e10be198c7ffc1f1d6e19"}'
+payinvoice = '{"payment_error":"unable to find a path to destination","payment_preimage":"","payment_route":null}'
+addinvoice = '{"r_hash":"bcb1cc2cca6a26bf0d2ba86ed4dc09b64d45ccecff663819eb56ab5477481ed6","pay_req":"lnbc1pd3aml7pp5hjcuctx2dgnt7rft4phdfhqfkex5tn8vlanrsx0t2644ga6grmtqdqqcqzyshxnsetaufstvawr83yq6st9kjk072d2yp7cu4dawyc36ac05rva9ar7mmt8mldg3v56krx80jp7rdycrxjcz9qea6z4t3dvm2aan8xgpu7ey67"}'
+
+if not sys.argv[1:]:
+    sys.exit()
+
+cmd = sys.argv[1]
+
+if cmd == 'getinfo':
+    print(getinfo)
+elif cmd == 'payinvoice':
+    print(payinvoice)
+elif cmd == 'addinvoice':
+    print(addinvoice)
