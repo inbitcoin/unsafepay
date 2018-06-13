@@ -10,7 +10,7 @@ from telepot.delegate import per_chat_id, create_open
 from telegram_token import UNSAFEPAY_TELEGRAM
 
 ALLOWED_ID = (16133199, 'martinoz')
-ALLOWED_COMMANDS = {'pay', 'info', 'help', 'ping', 'echo', 'add', 'balance'}
+ALLOWED_COMMANDS = {'pay', 'info', 'help', 'add', 'balance', 'ping', 'echo'}
 
 
 def to_btc_str(sats):
@@ -30,7 +30,8 @@ class Lncli:
 
     def _command(self, *cmd):
         print([Lncli.CMD] + list(cmd))
-        process = subprocess.Popen([Lncli.CMD] + list(cmd), stdout=subprocess.PIPE)
+        process = subprocess.Popen(
+            [Lncli.CMD] + list(cmd), stdout=subprocess.PIPE)
         out, err = process.communicate()
         if process.returncode == 0:
             return json.loads(str(out, 'utf-8'))
@@ -46,14 +47,16 @@ class Lncli:
                 ]
         if not obj['synced_to_chain']:
             rows.append('Not synced')
+        rows.append(self.balance())
         return '\n'.join(rows)
 
     def pay(self, pay_req, amt=None):
         """lncli payinvoice [command options] pay_req"""
         cmd = ['payinvoice']
         if amt:
+
             cmd.append('--amt')
-            cmd.append('%d' % amt)
+            cmd.append('%d' % amt_to_sat(amt))
         cmd.append(pay_req)
         return self._command(*cmd)
 
@@ -61,7 +64,7 @@ class Lncli:
         """lncli addinvoice value"""
         cmd = ['addinvoice']
         if amt:
-            cmd.append('%d' % amt)
+            cmd.append('%d' % amt_to_sat(amt))
         out = self._command(*cmd)
         if 'pay_req' in out:
             return out['pay_req']
@@ -75,13 +78,15 @@ class Lncli:
         rows = []
         rows.append('Wallet')
         for key in wallet:
-            rows.append('%s: %s' % (key.replace('_', ' '), to_btc_str(wallet[key])))
+            rows.append(
+                '%s: %s' % (key.replace('_', ' '), to_btc_str(wallet[key])))
         rows.append('Channel')
         for key in channel:
-            rows.append('%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
+            rows.append(
+                '%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
         return '\n'.join(rows)
 
-lncli = Lncli()
+lni = Lncli()
 
 
 class TelegramBot(telepot.helper.ChatHandler):
@@ -107,25 +112,16 @@ class TelegramBot(telepot.helper.ChatHandler):
         if cmd not in ALLOWED_COMMANDS:
             return
 
-        if cmd == 'help':
+        if hasattr(lni, cmd):
+            self.sender.sendMessage(getattr(lni, cmd)(*tokens[1:]))
+        elif cmd == 'help':
             self.sender.sendMessage(' '.join(ALLOWED_COMMANDS))
         elif cmd == 'ping':
             self.sender.sendMessage('pong')
         elif cmd == 'echo':
             self.sender.sendMessage(' '.join(tokens[1:]))
-        elif cmd == 'pay':
-            if tokens[1:]:
-                amt = amt_to_sat(tokens[2]) if tokens[2:] else None
-                self.sender.sendMessage(lncli.pay(tokens[1], amt))
-        elif cmd == 'info':
-            info = lncli.info()
-            balance = lncli.balance()
-            self.sender.sendMessage('\n'.join([info, balance]))
-        elif cmd == 'add':
-            amt = amt_to_sat(tokens[1]) if tokens[1:] else None
-            self.sender.sendMessage(lncli.add(amt))
-        elif cmd == 'balance':
-            self.sender.sendMessage(lncli.balance())
+        else:
+            self.sender.sendMessage('Not implemented, sorry')
 
 
 bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
