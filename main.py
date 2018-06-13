@@ -10,7 +10,8 @@ from telepot.delegate import per_chat_id, create_open
 from telegram_token import UNSAFEPAY_TELEGRAM
 
 ALLOWED_ID = (16133199, 'martinoz')
-ALLOWED_COMMANDS = {'pay', 'info', 'help', 'add', 'balance', 'ping', 'echo'}
+ALLOWED_COMMANDS = {
+    'pay', 'info', 'help', 'add', 'balance', 'ping', 'echo', 'channels'}
 
 
 def to_btc_str(sats):
@@ -84,6 +85,21 @@ class Lncli:
         for key in channel:
             rows.append(
                 '%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
+        return '\n'.join(rows)
+
+    def channels(self):
+        """lncli listchannels"""
+        chs = self._command('listchannels')['channels']
+        rows = []
+        for ch in chs:
+            rows.append(ch['chan_id'])
+            rows.append(to_btc_str(ch['capacity']))
+            local = to_btc_str(ch['local_balance'])
+            remote = to_btc_str(ch['remote_balance'])
+            rows.append('l: %s r: %s' % (local, remote))
+            rows.append(ch['remote_pubkey'])
+            rows.append(ch['channel_point'])
+            rows.append('')
         return '\n'.join(rows)
 
 lni = Lncli()
