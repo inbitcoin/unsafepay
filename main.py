@@ -5,6 +5,7 @@ telegram bot
 import subprocess
 import json
 from decimal import Decimal
+import time
 import telepot
 from telepot.delegate import per_chat_id, create_open
 from telegram_token import UNSAFEPAY_TELEGRAM
@@ -12,6 +13,8 @@ from telegram_token import UNSAFEPAY_TELEGRAM
 ALLOWED_ID = (16133199, 'martinoz')
 ALLOWED_COMMANDS = {
     'pay', 'info', 'help', 'add', 'balance', 'ping', 'echo', 'channels'}
+_24H = 60 * 60 * 24
+TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 
 
 def to_btc_str(sats):
@@ -29,6 +32,11 @@ class Lncli:
     """Interface to lncli command"""
     CMD = 'lncli'
 
+    def __init__(self):
+        self.aliases = {}
+        self._updated = 0
+        self.update_aliases()
+
     def _command(self, *cmd):
         print([Lncli.CMD] + list(cmd))
         process = subprocess.Popen(
@@ -38,6 +46,17 @@ class Lncli:
             return json.loads(str(out, 'utf-8'))
         print(out)
         print(err)
+
+    def update_aliases(self):
+
+        if time.time() - self._updated < _24H:
+            return
+        graph = self._command('describegraph')
+        aliases = {}
+        for node in graph['nodes']:
+            aliases[node['pub_key']] = node['alias']
+        self.aliases = aliases
+        self._updated = time.time()
 
     def info(self):
         obj = self._command('getinfo')
@@ -92,13 +111,15 @@ class Lncli:
         chs = self._command('listchannels')['channels']
         rows = []
         for ch in chs:
+            pubkey = ch['remote_pubkey']
+            rows.append(self.aliases.get(pubkey, pubkey))
             rows.append(ch['chan_id'])
             rows.append(to_btc_str(ch['capacity']))
             local = to_btc_str(ch['local_balance'])
             remote = to_btc_str(ch['remote_balance'])
-            rows.append('l: %s r: %s' % (local, remote))
-            rows.append(ch['remote_pubkey'])
-            rows.append(ch['channel_point'])
+            rows.append('L: %s R: %s' % (local, remote))
+            rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
+            rows.append('Active' if ch['active'] else 'Not active')
             rows.append('')
         return '\n'.join(rows)
 
@@ -138,6 +159,7 @@ class TelegramBot(telepot.helper.ChatHandler):
             self.sender.sendMessage(' '.join(tokens[1:]))
         else:
             self.sender.sendMessage('Not implemented, sorry')
+        lni.update_aliases()
 
 
 bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
