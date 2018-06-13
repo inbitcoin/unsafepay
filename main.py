@@ -12,7 +12,9 @@ from telegram_token import UNSAFEPAY_TELEGRAM
 
 ALLOWED_ID = (16133199, 'martinoz')
 ALLOWED_COMMANDS = {
-    'pay', 'info', 'help', 'add', 'balance', 'ping', 'echo', 'channels'}
+    'pay', 'info', 'help',
+    'add', 'balance', 'ping',
+    'echo', 'channels', 'unicode'}
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 
@@ -28,6 +30,10 @@ def amt_to_sat(amt):
     return int(amt)
 
 
+class NodeException(Exception):
+    pass
+
+
 class Lncli:
     """Interface to lncli command"""
     CMD = 'lncli'
@@ -37,7 +43,8 @@ class Lncli:
         self._updated = 0
         self.update_aliases()
 
-    def _command(self, *cmd):
+    @staticmethod
+    def _command(*cmd):
         print([Lncli.CMD] + list(cmd))
         process = subprocess.Popen(
             [Lncli.CMD] + list(cmd), stdout=subprocess.PIPE)
@@ -46,6 +53,7 @@ class Lncli:
             return json.loads(str(out, 'utf-8'))
         print(out)
         print(err)
+        raise NodeException('\n'.join([str(out, 'utf-8'), str(err, 'utf-8')]))
 
     def update_aliases(self):
 
@@ -112,14 +120,14 @@ class Lncli:
         rows = []
         for ch in chs:
             pubkey = ch['remote_pubkey']
-            rows.append(self.aliases.get(pubkey, pubkey))
+            active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
+            rows.append('%s %s' % (self.aliases.get(pubkey, pubkey), active))
             rows.append(ch['chan_id'])
             rows.append(to_btc_str(ch['capacity']))
             local = to_btc_str(ch['local_balance'])
             remote = to_btc_str(ch['remote_balance'])
             rows.append('L: %s R: %s' % (local, remote))
             rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
-            rows.append('Active' if ch['active'] else 'Not active')
             rows.append('')
         return '\n'.join(rows)
 
@@ -150,13 +158,20 @@ class TelegramBot(telepot.helper.ChatHandler):
             return
 
         if hasattr(lni, cmd):
-            self.sender.sendMessage(getattr(lni, cmd)(*tokens[1:]))
+            try:
+                self.sender.sendMessage(getattr(lni, cmd)(*tokens[1:]))
+            except NodeException as exception:
+                self.sender.sendMessage('\u274c\n' + str(exception))
         elif cmd == 'help':
             self.sender.sendMessage(' '.join(ALLOWED_COMMANDS))
         elif cmd == 'ping':
             self.sender.sendMessage('pong')
         elif cmd == 'echo':
             self.sender.sendMessage(' '.join(tokens[1:]))
+        elif cmd == 'unicode':
+            encoded = ' '.join(tokens[1:]).encode(
+                'unicode-escape').decode('ascii')
+            self.sender.sendMessage(encoded)
         else:
             self.sender.sendMessage('Not implemented, sorry')
         lni.update_aliases()
