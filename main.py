@@ -154,7 +154,7 @@ class TelegramBot(telepot.helper.ChatHandler):
 
         if 'text' not in msg:
             return
-        tokens = msg['text'].split()
+        tokens = msg['text'].lstrip('/').split()
         cmd = tokens[0].lower()
         if cmd not in ALLOWED_COMMANDS:
             return
