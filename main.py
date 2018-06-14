@@ -81,8 +81,9 @@ class Lncli:
     def pay(self, pay_req, amt=None):
         """lncli payinvoice [command options] pay_req"""
         cmd = ['payinvoice']
+        if pay_req.lower().startswith('lightning:'):
+            pay_req = pay_req[10:]
         if amt:
-
             cmd.append('--amt')
             cmd.append('%d' % amt_to_sat(amt))
         cmd.append(pay_req)
