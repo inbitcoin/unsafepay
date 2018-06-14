@@ -53,7 +53,8 @@ class Lncli:
             return json.loads(str(out, 'utf-8'))
         print(out)
         print(err)
-        raise NodeException('\n'.join([str(out, 'utf-8'), str(err, 'utf-8')]))
+        rows = [str(row, 'utf-8') for row in (out, err) if row is not None]
+        raise NodeException('\n'.join(rows))
 
     def update_aliases(self):
 
