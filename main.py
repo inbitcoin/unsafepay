@@ -14,7 +14,8 @@ ALLOWED_ID = (16133199, 'martinoz')
 ALLOWED_COMMANDS = {
     'pay', 'info', 'help',
     'add', 'balance', 'ping',
-    'echo', 'channels', 'unicode'}
+    'echo', 'channels', 'unicode',
+}
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 
@@ -47,14 +48,12 @@ class Lncli:
     def _command(*cmd):
         print([Lncli.CMD] + list(cmd))
         process = subprocess.Popen(
-            [Lncli.CMD] + list(cmd), stdout=subprocess.PIPE)
+            [Lncli.CMD] + list(cmd),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
         if process.returncode == 0:
             return json.loads(str(out, 'utf-8'))
-        print(out)
-        print(err)
-        rows = [str(row, 'utf-8') for row in (out, err) if row is not None]
-        raise NodeException('\n'.join(rows))
+        raise NodeException(str(err, 'utf-8'))
 
     def update_aliases(self):
 
@@ -133,6 +132,7 @@ class Lncli:
             rows.append('')
         return '\n'.join(rows)
 
+
 lni = Lncli()
 
 
@@ -163,7 +163,7 @@ class TelegramBot(telepot.helper.ChatHandler):
             try:
                 self.sender.sendMessage(getattr(lni, cmd)(*tokens[1:]))
             except NodeException as exception:
-                self.sender.sendMessage('\u274c\n' + str(exception))
+                self.sender.sendMessage('\u274c ' + str(exception))
         elif cmd == 'help':
             self.sender.sendMessage(' '.join(ALLOWED_COMMANDS))
         elif cmd == 'ping':
