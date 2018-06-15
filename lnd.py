@@ -6,19 +6,11 @@ import subprocess
 import json
 from decimal import Decimal
 import time
-import telepot
-from telepot.delegate import per_chat_id, create_open
-from telegram_token import UNSAFEPAY_TELEGRAM
 
-ALLOWED_ID = (16133199, 'martinoz')
-ALLOWED_COMMANDS = {
-    'pay', 'info', 'help',
-    'add', 'balance', 'ping',
-    'echo', 'channels', 'unicode',
-}
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 CH_LINK = 'https://1ml.com/channel/%s'
+
 
 def to_btc_str(sats):
     return '{:.8f}'.format(Decimal(sats) / Decimal(1e8))
@@ -131,63 +123,3 @@ class Lncli:
             rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
             rows.append('')
         return '\n'.join(rows)
-
-
-lni = Lncli()
-
-
-class TelegramBot(telepot.helper.ChatHandler):
-    """ super class for bot """
-    def __init__(self, seed_tuple, timeout):
-        """ init bot """
-        super(TelegramBot, self).__init__(seed_tuple, timeout)
-        print('__init__', seed_tuple, timeout)
-        # self._id = seed_tuple[1]['from']['id']
-        # self._name = seed_tuple[1]['from']['username']
-
-    def on_chat_message(self, msg):
-        """ handle chat """
-        if msg['chat']['id'] != ALLOWED_ID[0]:
-            return
-        if msg['chat']['username'] != ALLOWED_ID[1]:
-            return
-
-        if 'text' in msg:
-            self.text(msg)
-        elif 'photo' in msg:
-            self.photo(msg)
-
-    def text(self, msg):
-        tokens = msg['text'].lstrip('/').split()
-        cmd = tokens[0].lower()
-        if cmd not in ALLOWED_COMMANDS:
-            return
-
-        if hasattr(lni, cmd):
-            try:
-                self.sender.sendMessage(getattr(lni, cmd)(*tokens[1:]))
-            except NodeException as exception:
-                self.sender.sendMessage('\u274c ' + str(exception))
-        elif cmd == 'help':
-            self.sender.sendMessage(' '.join(ALLOWED_COMMANDS))
-        elif cmd == 'ping':
-            self.sender.sendMessage('pong')
-        elif cmd == 'echo':
-            self.sender.sendMessage(' '.join(tokens[1:]))
-        elif cmd == 'unicode':
-            encoded = ' '.join(tokens[1:]).encode(
-                'unicode-escape').decode('ascii')
-            self.sender.sendMessage(encoded)
-        else:
-            self.sender.sendMessage('Not implemented, sorry')
-        lni.update_aliases()
-
-    def photo(self, msg):
-        file = self.download_file(msg['photo'][0]['file_id'], '/tmp/bot')
-        print(file)
-
-
-bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
-    (per_chat_id(), create_open(TelegramBot, timeout=60)),
-])
-bot.message_loop(run_forever=True)
