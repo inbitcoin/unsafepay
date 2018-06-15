@@ -152,8 +152,12 @@ class TelegramBot(telepot.helper.ChatHandler):
         if msg['chat']['username'] != ALLOWED_ID[1]:
             return
 
-        if 'text' not in msg:
-            return
+        if 'text' in msg:
+            self.text(msg)
+        elif 'photo' in msg:
+            self.photo(msg)
+
+    def text(self, msg):
         tokens = msg['text'].lstrip('/').split()
         cmd = tokens[0].lower()
         if cmd not in ALLOWED_COMMANDS:
@@ -177,6 +181,10 @@ class TelegramBot(telepot.helper.ChatHandler):
         else:
             self.sender.sendMessage('Not implemented, sorry')
         lni.update_aliases()
+
+    def photo(self, msg):
+        file = self.download_file(msg['photo'][0]['file_id'], '/tmp/bot')
+        print(file)
 
 
 bot = telepot.DelegatorBot(UNSAFEPAY_TELEGRAM, [
