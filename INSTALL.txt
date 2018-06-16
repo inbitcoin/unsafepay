@@ -1,2 +1,4 @@
 
 sudo apt-get install libzbar0
+ OR
+sudo pacman -S zbar
