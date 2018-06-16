@@ -16,6 +16,10 @@ def to_btc_str(sats):
     return '{:.8f}'.format(Decimal(sats) / Decimal(1e8))
 
 
+def to_sat_str(msats):
+    return '{:.3f}'.format(Decimal(msats) / Decimal(1e3))
+
+
 def amt_to_sat(amt):
     """Get sat or btc amt"""
     if '.' in amt:
@@ -79,7 +83,16 @@ class Lncli:
             cmd.append('--amt')
             cmd.append('%d' % amt_to_sat(amt))
         cmd.append(pay_req)
-        return self._command(*cmd)
+        out = self._command(*cmd)
+        rows = []
+        if out['payment_error']:
+            rows.append('Error: %s' % out['payment_error'])
+        else:
+            route = out['payment_route']
+            rows.append('Pagato: %s btc' % to_btc_str(route['total_amt']))
+            rows.append('Commissioni: %s sat' % to_sat_str(route['total_fees_msat']))
+            rows.append('# salti: %d' % len(route['hops']))
+        return '\n'.join(rows)
 
     def add(self, amt=None):
         """lncli addinvoice value"""
