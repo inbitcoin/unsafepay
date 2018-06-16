@@ -72,6 +72,7 @@ class Lncli:
         if not obj['synced_to_chain']:
             rows.append('Not synced')
         rows.append(self.balance())
+        rows.append(self.feereport())
         return '\n'.join(rows)
 
     def pay(self, pay_req, amt=None):
@@ -137,6 +138,11 @@ class Lncli:
             rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
             rows.append('')
         return '\n'.join(rows)
+
+    def feereport(self):
+        out = self._command('feereport')
+        return 'Commissioni\ngiorno: %s, settimana: %s, mese: %s' % (
+            out['day_fee_sum'], out['week_fee_sum'], out['month_fee_sum'])
 
     def is_pay_req(self, pay_req):
         try:
