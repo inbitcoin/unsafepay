@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import time
+import tempfile
+import os
+import re
 import telepot
 from telepot.loop import MessageLoop
 from config import UNSAFEPAY_TELEGRAM
 from lnd import Lncli, NodeException
+from qr import decode, encode
 
 ALLOWED_ID = (16133199, 'martinoz')
 ALLOWED_COMMANDS = {
@@ -53,8 +57,21 @@ def text(msg):
 
 
 def photo(msg):
-    file = bot.download_file(msg['photo'][0]['file_id'], '/tmp/bot')
-    print(file)
+    content_type, chat_type, chat_id = telepot.glance(msg)
+    _, file = tempfile.mkstemp(prefix='unsafepay')
+    bot.download_file(msg['photo'][-1]['file_id'], file)
+    data = decode(file)
+    if data:
+        if is_pay_req(data):
+            try:
+                bot.sendMessage(chat_id, ln.pay(data))
+            except NodeException as exception:
+                bot.sendMessage(chat_id, '\u274c ' + str(exception))
+        else:
+            bot.sendMessage(chat_id, 'Richiesta di pagamento non valida')
+    else:
+        bot.sendMessage(chat_id, 'Non sembra un qrcode')
+    os.remove(file)
 
 
 def on_chat_message(msg):
@@ -68,6 +85,13 @@ def on_chat_message(msg):
         text(msg)
     elif 'photo' in msg:
         photo(msg)
+
+
+def is_pay_req(pay_req):
+
+    if re.match('ln(bc|tb)\d+[munp]', pay_req):
+        return ln.is_pay_req(pay_req)
+    return False
 
 
 def start():

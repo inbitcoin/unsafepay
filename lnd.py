@@ -123,3 +123,11 @@ class Lncli:
             rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
             rows.append('')
         return '\n'.join(rows)
+
+    def is_pay_req(self, pay_req):
+        try:
+            self._command('decodepayreq', pay_req)
+        except NodeException:
+            return False
+        else:
+            return True
