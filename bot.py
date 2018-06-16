@@ -23,12 +23,6 @@ bot = None
 ln = Lncli()
 
 
-def on_chat_message__example(msg):
-    content_type, chat_type, chat_id = telepot.glance(msg)
-    print('Chat:', content_type, chat_type, chat_id)
-    bot.sendMessage(chat_id, msg['text'])
-
-
 def text(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     tokens = msg['text'].lstrip('/').split()
