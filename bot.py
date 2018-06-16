@@ -38,7 +38,11 @@ def text(msg):
 
     if hasattr(ln, cmd):
         try:
-            bot.sendMessage(chat_id, getattr(ln, cmd)(*tokens[1:]))
+            out = getattr(ln, cmd)(*tokens[1:])
+            if cmd == 'add' and is_pay_req(out, True):
+                send_qr(chat_id, out)
+            else:
+                bot.sendMessage(chat_id, out)
         except NodeException as exception:
             bot.sendMessage(chat_id, '\u274c ' + str(exception))
     elif cmd == 'help':
@@ -74,6 +78,15 @@ def photo(msg):
     os.remove(file)
 
 
+def send_qr(chat_id, data):
+    _, file = tempfile.mkstemp(prefix='unsafepay')
+    with open(file, 'wb') as fd:
+        encode(data, fd)
+    with open(file, 'rb') as fd:
+        bot.sendPhoto(chat_id, fd, data)
+    os.remove(file)
+
+
 def on_chat_message(msg):
     """ handle chat """
     if msg['chat']['id'] != ALLOWED_ID[0]:
@@ -87,10 +100,10 @@ def on_chat_message(msg):
         photo(msg)
 
 
-def is_pay_req(pay_req):
+def is_pay_req(pay_req, weak=False):
 
     if re.match('ln(bc|tb)\d+[munp]', pay_req):
-        return ln.is_pay_req(pay_req)
+        return weak or ln.is_pay_req(pay_req)
     return False
 
 
