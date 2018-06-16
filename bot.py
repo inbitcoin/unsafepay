@@ -2,7 +2,7 @@
 import time
 import telepot
 from telepot.loop import MessageLoop
-from telegram_token import UNSAFEPAY_TELEGRAM
+from config import UNSAFEPAY_TELEGRAM
 from lnd import Lncli, NodeException
 
 ALLOWED_ID = (16133199, 'martinoz')
