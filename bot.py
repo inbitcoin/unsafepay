@@ -96,7 +96,7 @@ def on_chat_message(msg):
 
 def is_pay_req(pay_req, weak=False):
 
-    if re.match('ln(bc|tb)\d+[munp]', pay_req):
+    if re.match('(lightning:)?ln(bc|tb)\d+[munp]', pay_req):
         return weak or ln.is_pay_req(pay_req)
     return False
 
