@@ -5,11 +5,10 @@ import os
 import re
 import telepot
 from telepot.loop import MessageLoop
-from config import UNSAFEPAY_TELEGRAM
+from config import *
 from lnd import Lncli, NodeException
 from qr import decode, encode
 
-ALLOWED_ID = (16133199, 'martinoz')
 ALLOWED_COMMANDS = {
     'pay', 'info', 'help',
     'add', 'balance', 'ping',
@@ -81,11 +80,18 @@ def send_qr(chat_id, data):
     os.remove(file)
 
 
+def is_authorized(msg):
+    chat_id = msg['chat']['id']
+    username = msg['chat']['username']
+    for allowed in ALLOWED_IDS:
+        if chat_id == allowed[0] and username == allowed[1]:
+            return False
+    return False
+
+
 def on_chat_message(msg):
     """ handle chat """
-    if msg['chat']['id'] != ALLOWED_ID[0]:
-        return
-    if msg['chat']['username'] != ALLOWED_ID[1]:
+    if not is_authorized(msg):
         return
 
     if 'text' in msg:
