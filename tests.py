@@ -3,12 +3,13 @@ import unittest
 import os
 import json
 import tempfile
-from lnd import Lncli
+from lnd import Lncli, NodeException
 import lncli
 import qr
 
 CMDS = lncli.cmds()
 PAY_REQ = json.loads(CMDS['addinvoice'])['pay_req']
+LNCLI_MOCK = os.environ['PATH'].startswith('.:')  # launch with: PATH=.:$PATH ./tests.py
 
 
 class TestLnd(unittest.TestCase):
@@ -21,17 +22,35 @@ class TestLnd(unittest.TestCase):
 
     def test_commands(self):
         self.ln.info()
-        self.ln.pay(PAY_REQ)
-        self.ln.pay(PAY_REQ, '0.001')
-        self.ln.pay('lightning:' + PAY_REQ)
         self.ln.add()
         self.ln.add('123')
         self.ln.add('0.001')
-        self.ln.add('1.23')  # Should raise an error but ./lncli does not support it
         self.ln.balance()
         self.ln.channels()
         self.ln.feereport()
         self.ln.is_pay_req(PAY_REQ)
+
+    @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_mock_commands(self):
+
+        self.ln.pay(PAY_REQ)
+        self.ln.pay(PAY_REQ, '0.001')
+        self.ln.pay('lightning:' + PAY_REQ)
+        self.ln.add('1.23')
+
+    @unittest.skipIf(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_lncli_commands(self):
+
+        with self.assertRaises(NodeException):
+            self.ln.pay(PAY_REQ)
+        with self.assertRaises(NodeException):
+            self.ln.pay(PAY_REQ, '0.001')
+        with self.assertRaises(NodeException):
+            self.ln.pay('lightning:' + PAY_REQ)
+        with self.assertRaises(NodeException):
+            self.ln.add('1.23')
+        with self.assertRaises(NodeException):
+            self.ln.add(str(int(1e8)))
 
 
 class TestQr(unittest.TestCase):
