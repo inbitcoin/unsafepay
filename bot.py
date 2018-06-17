@@ -85,7 +85,7 @@ def is_authorized(msg):
     username = msg['chat']['username']
     for allowed in ALLOWED_IDS:
         if chat_id == allowed[0] and username == allowed[1]:
-            return False
+            return True
     return False
 
 
