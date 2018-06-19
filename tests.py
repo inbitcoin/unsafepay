@@ -22,6 +22,7 @@ class TestLnd(unittest.TestCase):
 
     def test_commands(self):
         self.ln.info()
+        self.ln.uri()
         self.ln.add()
         self.ln.add('123')
         self.ln.add('0.001')

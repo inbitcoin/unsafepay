@@ -75,6 +75,9 @@ class Lncli:
         rows.append(self.feereport())
         return '\n'.join(rows)
 
+    def uri(self):
+        return self._command('getinfo')['uris'][0]
+
     def pay(self, pay_req, amt=None):
         """lncli payinvoice [command options] pay_req"""
         cmd = ['payinvoice']

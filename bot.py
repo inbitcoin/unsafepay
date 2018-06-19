@@ -13,7 +13,7 @@ AUTH_COMMANDS = {
     'pay', 'balance', 'ping', 'echo', 'unicode',
 }
 NO_AUTH_COMMANDS = {
-    'info', 'help', 'channels', 'add',
+    'info', 'help', 'channels', 'add', 'uri',
 }
 ALLOWED_COMMANDS = AUTH_COMMANDS | NO_AUTH_COMMANDS
 _24H = 60 * 60 * 24
@@ -34,7 +34,7 @@ def text(msg):
     if hasattr(ln, cmd):
         try:
             out = getattr(ln, cmd)(*tokens[1:])
-            if cmd == 'add' and is_pay_req(out, True):
+            if cmd == 'add' and is_pay_req(out, True) or cmd == 'uri':
                 send_qr(chat_id, out)
             else:
                 bot.sendMessage(chat_id, out)
