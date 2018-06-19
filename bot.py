@@ -9,11 +9,13 @@ from config import *
 from lnd import Lncli, NodeException
 from qr import decode, encode
 
-ALLOWED_COMMANDS = {
-    'pay', 'info', 'help',
-    'add', 'balance', 'ping',
-    'echo', 'channels', 'unicode',
+AUTH_COMMANDS = {
+    'pay', 'balance', 'ping', 'echo', 'unicode',
 }
+NO_AUTH_COMMANDS = {
+    'info', 'help', 'channels', 'add',
+}
+ALLOWED_COMMANDS = AUTH_COMMANDS | NO_AUTH_COMMANDS
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 CH_LINK = 'https://1ml.com/channel/%s'
