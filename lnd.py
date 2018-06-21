@@ -76,7 +76,7 @@ class Lncli:
         rows.append(self.feereport())
         commit = git.get_git_revision_short_hash()
         if commit:
-            rows.append('Versione: %s' % commit)
+            rows.append('Version: %s' % commit)
         return '\n'.join(rows)
 
     def uri(self):
@@ -97,10 +97,10 @@ class Lncli:
             rows.append('Error: %s' % out['payment_error'])
         else:
             route = out['payment_route']
-            rows.append('Pagato: %s btc' % to_btc_str(route['total_amt']))
-            rows.append('Commissioni: %s sat' % to_sat_str(
+            rows.append('Amount: %s btc' % to_btc_str(route['total_amt']))
+            rows.append('Fee: %s sat' % to_sat_str(
                 route['total_fees_msat']))
-            rows.append('# salti: %d' % len(route['hops']))
+            rows.append('# hops: %d' % len(route['hops']))
         return '\n'.join(rows)
 
     def add(self, amt=None):
@@ -148,7 +148,7 @@ class Lncli:
 
     def feereport(self):
         out = self._command('feereport')
-        return 'Commissioni\ngiorno: %s, settimana: %s, mese: %s' % (
+        return 'Fees\nday: %s, week: %s, month: %s' % (
             out['day_fee_sum'], out['week_fee_sum'], out['month_fee_sum'])
 
     def is_pay_req(self, pay_req):
