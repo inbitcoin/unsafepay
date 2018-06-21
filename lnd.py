@@ -6,6 +6,7 @@ import subprocess
 import json
 from decimal import Decimal
 import time
+import git
 
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
@@ -73,6 +74,9 @@ class Lncli:
             rows.append('Not synced')
         rows.append(self.balance())
         rows.append(self.feereport())
+        commit = git.get_git_revision_short_hash()
+        if commit:
+            rows.append('Versione: %s' % commit)
         return '\n'.join(rows)
 
     def uri(self):
