@@ -65,8 +65,10 @@ class Lncli:
 
     def info(self):
         obj = self._command('getinfo')
+        n_chs = len(self._command('listchannels')['channels'])
         rows = [obj['alias'],
                 'Active channels: %s' % obj['num_active_channels'],
+                'Channels: %d' % n_chs,
                 'Num peers: %s' % obj['num_peers'],
                 '%s' % obj['uris'][0],
                 ]
