@@ -7,5 +7,5 @@ CURR=$(git rev-parse HEAD)
 if [ "$LAST" != "$CURR" ]
 then
     tmux kill-session -t unsafepay
-    tmux new -ds unsafepay "~/.virtualenvs/unsafepay/bin/python bot.py"
+    tmux new -ds unsafepay "~/.virtualenvs/unsafepay/bin/python $DIR/bot.py"
 fi
