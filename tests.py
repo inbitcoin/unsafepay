@@ -8,6 +8,7 @@ import lncli
 import qr
 
 CMDS = lncli.cmds()
+PROTOCOL = 'lightning:'
 PAY_REQ = json.loads(CMDS['addinvoice'])['pay_req']
 LNCLI_MOCK = os.environ['PATH'].startswith('.:')  # launch with: PATH=.:$PATH ./tests.py
 
@@ -36,12 +37,14 @@ class TestLnd(unittest.TestCase):
 
         self.ln.pay(PAY_REQ)
         self.ln.pay(PAY_REQ, '0.001')
-        self.ln.pay('lightning:' + PAY_REQ)
+        self.ln.pay(PROTOCOL + PAY_REQ)
         self.ln.add('1.23')
 
     @unittest.skipIf(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_lncli_commands(self):
 
+        self.assertTrue(self.ln.is_pay_req(PAY_REQ))
+        self.assertTrue(self.ln.is_pay_req(PROTOCOL + PAY_REQ))
         with self.assertRaises(NodeException):
             self.ln.pay(PAY_REQ)
         with self.assertRaises(NodeException):
