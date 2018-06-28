@@ -154,6 +154,8 @@ class Lncli:
             out['day_fee_sum'], out['week_fee_sum'], out['month_fee_sum'])
 
     def is_pay_req(self, pay_req):
+        if pay_req.lower().startswith('lightning:'):
+            pay_req = pay_req[10:]
         try:
             self._command('decodepayreq', pay_req)
         except NodeException:
