@@ -139,7 +139,8 @@ class Lncli:
             pubkey = ch['remote_pubkey']
             active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
             rows.append('%s %s' % (self.aliases.get(pubkey, pubkey), active))
-            rows.append(CH_LINK % ch['chan_id'])
+            if ch['chan_id'] != '0':
+                rows.append(CH_LINK % ch['chan_id'])
             rows.append(to_btc_str(ch['capacity']))
             local = to_btc_str(ch['local_balance'])
             remote = to_btc_str(ch['remote_balance'])
