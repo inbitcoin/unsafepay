@@ -101,7 +101,7 @@ class Lncli:
             route = out['payment_route']
             rows.append('Amount: %s btc' % to_btc_str(route['total_amt']))
             rows.append('Fee: %s sat' % to_sat_str(
-                route['total_fees_msat']))
+                route['total_fees_msat'] if 'total_fees_msat' in route else 0))
             rows.append('# hops: %d' % len(route['hops']))
         return '\n'.join(rows)
 
