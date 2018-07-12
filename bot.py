@@ -37,7 +37,10 @@ def text(msg):
             if cmd == 'add' and is_pay_req(out, True) or cmd == 'uri':
                 send_qr(chat_id, out)
             else:
-                bot.sendMessage(chat_id, out)
+                if not isinstance(out, list):
+                    out = [out]
+                for ou in out:
+                    bot.sendMessage(chat_id, ou)
         except NodeException as exception:
             bot.sendMessage(chat_id, '\u274c ' + str(exception))
     elif cmd == 'help':
