@@ -134,8 +134,9 @@ class Lncli:
     def channels(self):
         """lncli listchannels"""
         chs = self._command('listchannels')['channels']
-        rows = []
+        messages = []
         for ch in chs:
+            rows = []
             pubkey = ch['remote_pubkey']
             active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
             rows.append('%s %s' % (self.aliases.get(pubkey, pubkey), active))
@@ -146,8 +147,8 @@ class Lncli:
             remote = to_btc_str(ch['remote_balance'])
             rows.append('L: %s R: %s' % (local, remote))
             rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
-            rows.append('')
-        return '\n'.join(rows)
+            messages.append('\n'.join(rows))
+        return messages
 
     def feereport(self):
         out = self._command('feereport')
