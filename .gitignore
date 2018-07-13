@@ -97,3 +97,4 @@ ENV/
 
 config.py
 *~
+.idea
