@@ -94,9 +94,16 @@ def is_authorized(msg):
     return False
 
 
+def send_alloewd_ids_config(msg):
+    chat_id = msg['chat']['id']
+    username = msg['chat']['username']
+    bot.sendMessage(chat_id, "ALLOWED_IDS = [(%d, '%s')]" % (chat_id, username))
+
+
 def on_chat_message(msg):
     """ handle chat """
     if not is_authorized(msg):
+        send_alloewd_ids_config(msg)
         return
 
     if 'text' in msg:
