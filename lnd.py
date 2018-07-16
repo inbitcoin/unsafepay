@@ -131,7 +131,7 @@ class Lncli:
                 '%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
         return '\n'.join(rows)
 
-    def channels(self):
+    def channels(self, pending=True):
         """lncli listchannels"""
         chs = self._command('listchannels')['channels']
         messages = []
@@ -147,6 +147,23 @@ class Lncli:
             remote = to_btc_str(ch['remote_balance'])
             rows.append('L: %s R: %s' % (local, remote))
             rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
+            messages.append('\n'.join(rows))
+        if pending:
+            messages += self.pending()
+        return messages
+
+    def pending(self):
+        chs = self._command('pendingchannels')['pending_open_channels']
+        messages = []
+        for ch in chs:
+            rows = []
+            pubkey = ch['channel']['remote_node_pub']
+            rows.append('%s \u23f3' % (self.aliases.get(pubkey, pubkey), ))
+            rows.append(to_btc_str(ch['channel']['capacity']))
+            local = to_btc_str(ch['channel']['local_balance'])
+            remote = to_btc_str(ch['channel']['remote_balance'])
+            rows.append('L: %s R: %s' % (local, remote))
+            rows.append(TX_LINK % (ch['channel']['channel_point'].split(':')[0]))
             messages.append('\n'.join(rows))
         return messages
 
