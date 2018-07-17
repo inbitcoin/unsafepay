@@ -11,6 +11,7 @@ import git
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 CH_LINK = 'https://1ml.com/channel/%s'
+ND_LINK = 'https://1ml.com/node/%s'
 
 
 def to_btc_str(sats):
@@ -67,6 +68,7 @@ class Lncli:
         obj = self._command('getinfo')
         n_chs = len(self._command('listchannels')['channels'])
         rows = [obj['alias'],
+                ND_LINK % obj['identity_pubkey'],
                 'Active channels: %s' % obj['num_active_channels'],
                 'Channels: %d' % n_chs,
                 'Num peers: %s' % obj['num_peers'],
