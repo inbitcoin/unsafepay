@@ -71,9 +71,11 @@ class Lncli:
                 ND_LINK % obj['identity_pubkey'],
                 'Active channels: %s' % obj['num_active_channels'],
                 'Channels: %d' % n_chs,
-                'Num peers: %s' % obj['num_peers'],
-                '%s' % obj['uris'][0],
                 ]
+        if obj['num_pending_channels']:
+            rows.append('Pending channels: %s' % obj['num_pending_channels'])
+        rows.append('Num peers: %s' % obj['num_peers'])
+        rows.append('%s' % obj['uris'][0])
         if not obj['synced_to_chain']:
             rows.append('Not synced')
         rows.append(self.balance())
