@@ -1,4 +1,14 @@
 
+== System requirements ==
+
+=== Debian ===
+
 sudo apt-get install libzbar0
- OR
+
+=== Arch Linux ===
+
 sudo pacman -S zbar
+
+== Python requirements ==
+
+pip3 install -r requirements.txt
