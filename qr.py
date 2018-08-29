@@ -1,5 +1,12 @@
+import sys
+from unittest import mock
 from PIL import Image
-from pyzbar.pyzbar import decode as zdecode, ZBarSymbol
+try:
+    from pyzbar.pyzbar import decode as zdecode, ZBarSymbol
+except ImportError:
+    zdecode = lambda *args, **kwargs: []
+    ZBarSymbol = mock.Mock()
+    print('pyzbar not found', file=sys.stderr)
 import qrcode
 
 

@@ -3,6 +3,7 @@ import unittest
 import os
 import json
 import tempfile
+from unittest import skipIf, mock
 from lnd import Lncli, NodeException
 import lncli
 import qr
@@ -67,6 +68,7 @@ class TestQr(unittest.TestCase):
             qr.encode(PAY_REQ, fd)
         os.remove(name)
 
+    @skipIf(isinstance(qr.ZBarSymbol, mock.Mock), 'pyzbar not found')
     def test_decode(self):
         _, name = tempfile.mkstemp(prefix='unsafepaytests')
         with open(name, 'wb') as fd:
