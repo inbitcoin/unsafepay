@@ -13,7 +13,7 @@ AUTH_COMMANDS = {
     'pay', 'balance', 'ping', 'echo', 'unicode',
 }
 NO_AUTH_COMMANDS = {
-    'info', 'help', 'channels', 'pending', 'add', 'uri',
+    'info', 'help', 'channels', 'chs', 'pending', 'add', 'uri',
 }
 ALLOWED_COMMANDS = AUTH_COMMANDS | NO_AUTH_COMMANDS
 _24H = 60 * 60 * 24
