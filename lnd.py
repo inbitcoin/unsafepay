@@ -156,6 +156,15 @@ class Lncli:
             messages += self.pending()
         return messages
 
+    def chs(self):
+        chs = self._command('listchannels')['channels']
+        rows = []
+        for ch in chs:
+            pubkey = ch['remote_pubkey']
+            active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
+            rows.append('%s %s' % (self.aliases.get(pubkey, pubkey[:8]), active))
+        return '\n'.join(rows)
+
     def pending(self):
         chs = self._command('pendingchannels')['pending_open_channels']
         messages = []

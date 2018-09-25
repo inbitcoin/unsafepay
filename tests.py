@@ -31,6 +31,7 @@ class TestLnd(unittest.TestCase):
         self.ln.balance()
         self.assertIsInstance(self.ln.channels(False), list)
         self.assertIsInstance(self.ln.channels(True), list)
+        self.ln.chs()
         self.assertIsInstance(self.ln.pending(), list)
         self.ln.feereport()
         self.ln.is_pay_req(PAY_REQ)
