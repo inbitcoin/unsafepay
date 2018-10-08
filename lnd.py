@@ -44,7 +44,7 @@ class Lncli:
 
     @staticmethod
     def _command(*cmd):
-        print([Lncli.CMD] + list(cmd))
+        print('$', Lncli.CMD, *cmd, sep='  ')
         process = subprocess.Popen(
             [Lncli.CMD] + list(cmd),
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
