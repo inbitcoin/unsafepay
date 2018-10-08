@@ -162,7 +162,8 @@ class Lncli:
         for ch in chs:
             pubkey = ch['remote_pubkey']
             active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
-            rows.append('%s %s' % (self.aliases.get(pubkey, pubkey[:8]), active))
+            capacity = to_btc_str(ch['capacity']).rstrip('0').rstrip('.')
+            rows.append('%s %s %s' % (self.aliases.get(pubkey, pubkey[:8]), capacity, active))
         return '\n'.join(rows)
 
     def pending(self):
