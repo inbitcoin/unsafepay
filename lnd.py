@@ -135,25 +135,27 @@ class Lncli:
                 '%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
         return '\n'.join(rows)
 
-    def channels(self, pending=True):
+    def channels(self, filter_by_alias=None, pending=True):
         """lncli listchannels"""
         chs = self._command('listchannels')['channels']
         messages = []
         for ch in chs:
             rows = []
             pubkey = ch['remote_pubkey']
-            active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
-            rows.append('%s %s' % (self.aliases.get(pubkey, pubkey), active))
-            if ch['chan_id'] != '0':
-                rows.append(CH_LINK % ch['chan_id'])
-            rows.append(to_btc_str(ch['capacity']))
-            local = to_btc_str(ch['local_balance'])
-            remote = to_btc_str(ch['remote_balance'])
-            rows.append('L: %s R: %s' % (local, remote))
-            rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
-            messages.append('\n'.join(rows))
+            alias = self.aliases.get(pubkey, pubkey)
+            if not filter_by_alias or filter_by_alias in alias or filter_by_alias in pubkey:
+                active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
+                rows.append('%s %s' % (alias, active))
+                if ch['chan_id'] != '0':
+                    rows.append(CH_LINK % ch['chan_id'])
+                rows.append(to_btc_str(ch['capacity']))
+                local = to_btc_str(ch['local_balance'])
+                remote = to_btc_str(ch['remote_balance'])
+                rows.append('L: %s R: %s' % (local, remote))
+                rows.append(TX_LINK % (ch['channel_point'].split(':')[0]))
+                messages.append('\n'.join(rows))
         if pending:
-            messages += self.pending()
+            messages += self.pending(filter_by_alias)
         return messages
 
     def chs(self):
@@ -166,19 +168,21 @@ class Lncli:
             rows.append('%s %s %s' % (self.aliases.get(pubkey, pubkey[:8]), capacity, active))
         return '\n'.join(rows)
 
-    def pending(self):
+    def pending(self, filter_by_alias=None):
         chs = self._command('pendingchannels')['pending_open_channels']
         messages = []
         for ch in chs:
             rows = []
             pubkey = ch['channel']['remote_node_pub']
-            rows.append('%s \u23f3' % (self.aliases.get(pubkey, pubkey), ))
-            rows.append(to_btc_str(ch['channel']['capacity']))
-            local = to_btc_str(ch['channel']['local_balance'])
-            remote = to_btc_str(ch['channel']['remote_balance'])
-            rows.append('L: %s R: %s' % (local, remote))
-            rows.append(TX_LINK % (ch['channel']['channel_point'].split(':')[0]))
-            messages.append('\n'.join(rows))
+            alias = self.aliases.get(pubkey, pubkey)
+            if not filter_by_alias or filter_by_alias in alias or filter_by_alias in pubkey:
+                rows.append('%s \u23f3' % (alias, ))
+                rows.append(to_btc_str(ch['channel']['capacity']))
+                local = to_btc_str(ch['channel']['local_balance'])
+                remote = to_btc_str(ch['channel']['remote_balance'])
+                rows.append('L: %s R: %s' % (local, remote))
+                rows.append(TX_LINK % (ch['channel']['channel_point'].split(':')[0]))
+                messages.append('\n'.join(rows))
         return messages
 
     def feereport(self):
