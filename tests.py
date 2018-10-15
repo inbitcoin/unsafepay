@@ -21,6 +21,15 @@ class TestLnd(unittest.TestCase):
 
     def test_aliases(self):
         self.assertTrue(len(self.ln.aliases))
+        # null string alias
+        pub = '03aa434d9ff5d5470033aa654f201dbbdce79955c61e9e48a6674d203ae3b689f5'
+        self.assertEqual(self.ln._alias(pub), pub)
+
+        mani = '03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95a059'
+        self.assertEqual(self.ln._alias(mani), 'mani_al_cielo')
+
+        false = '020000000000000000000000000000000000000000000000000000000000000000'
+        self.assertEqual(self.ln._alias(false), false)
 
     def test_commands(self):
         self.ln.info()

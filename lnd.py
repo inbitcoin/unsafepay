@@ -135,6 +135,10 @@ class Lncli:
                 '%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
         return '\n'.join(rows)
 
+    def _alias(self, pubkey, default=None):
+        """Return a not null alias or the pubkey"""
+        return self.aliases.get(pubkey) or default or pubkey
+
     def channels(self, filter_by_alias=None, pending=True):
         """lncli listchannels"""
         chs = self._command('listchannels')['channels']
@@ -142,7 +146,7 @@ class Lncli:
         for ch in chs:
             rows = []
             pubkey = ch['remote_pubkey']
-            alias = self.aliases.get(pubkey, pubkey)
+            alias = self._alias(pubkey)
             if not filter_by_alias or filter_by_alias in alias or filter_by_alias in pubkey:
                 active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
                 rows.append('%s %s' % (alias, active))
@@ -165,7 +169,7 @@ class Lncli:
             pubkey = ch['remote_pubkey']
             active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
             capacity = to_btc_str(ch['capacity']).rstrip('0').rstrip('.')
-            rows.append('%s %s %s' % (self.aliases.get(pubkey, pubkey[:8]), capacity, active))
+            rows.append('%s %s %s' % (self._alias(pubkey, pubkey[:8]), capacity, active))
         return '\n'.join(rows)
 
     def pending(self, filter_by_alias=None):
@@ -174,7 +178,7 @@ class Lncli:
         for ch in chs:
             rows = []
             pubkey = ch['channel']['remote_node_pub']
-            alias = self.aliases.get(pubkey, pubkey)
+            alias = self._alias(pubkey)
             if not filter_by_alias or filter_by_alias in alias or filter_by_alias in pubkey:
                 rows.append('%s \u23f3' % (alias, ))
                 rows.append(to_btc_str(ch['channel']['capacity']))
