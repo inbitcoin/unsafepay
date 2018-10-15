@@ -11,7 +11,10 @@ import git
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
 CH_LINK = 'https://1ml.com/channel/%s'
+CH_LINK_ALT = 'https://lightblock.me/lightning-channel/%s'
 ND_LINK = 'https://1ml.com/node/%s'
+ND_LINK_ALT = 'https://lightblock.me/lightning-node/%s'
+
 
 
 def to_btc_str(sats):
@@ -69,6 +72,7 @@ class Lncli:
         n_chs = len(self._command('listchannels')['channels'])
         rows = [obj['alias'],
                 ND_LINK % obj['identity_pubkey'],
+                ND_LINK_ALT % obj['identity_pubkey'],
                 'Active channels: %s' % obj['num_active_channels'],
                 'Channels: %d' % n_chs,
                 ]
@@ -153,6 +157,7 @@ class Lncli:
                 rows.append('%s %s%s' % (alias, active, private))
                 if not private and ch['chan_id'] != '0':
                     rows.append(CH_LINK % ch['chan_id'])
+                    rows.append(CH_LINK_ALT % ch['chan_id'])
                 rows.append(to_btc_str(ch['capacity']))
                 local = to_btc_str(ch['local_balance'])
                 remote = to_btc_str(ch['remote_balance'])
