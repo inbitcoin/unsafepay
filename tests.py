@@ -19,6 +19,7 @@ class TestLnd(unittest.TestCase):
     def setUp(self):
         self.ln = Lncli()
 
+    @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_aliases(self):
         self.assertTrue(len(self.ln.aliases))
         # null string alias
@@ -38,13 +39,9 @@ class TestLnd(unittest.TestCase):
         self.ln.add('123')
         self.ln.add('0.001')
         self.ln.balance()
-        self.assertEqual(len(self.ln.channels(pending=False)), 6)
-        self.assertEqual(len(self.ln.channels(pending=True)), 7)
-        self.assertEqual(len(self.ln.pending()), 1)
-        self.assertEqual(len(self.ln.channels('no-one', False)), 0)
-        self.assertEqual(len(self.ln.channels('al_cielo', False)), 1)
-        self.assertEqual(len(self.ln.channels('03db61876a', False)), 1)
-        self.assertEqual(len(self.ln.channels('02cdf83ef8', True)), 1)
+        self.assertIsInstance(self.ln.channels(pending=False), list)
+        self.assertIsInstance(self.ln.channels(pending=True), list)
+        self.assertIsInstance(self.ln.pending(), list)
         self.ln.chs()
         self.ln.feereport()
         self.ln.is_pay_req(PAY_REQ)
@@ -56,6 +53,14 @@ class TestLnd(unittest.TestCase):
         self.ln.pay(PAY_REQ, '0.001')
         self.ln.pay(PROTOCOL + PAY_REQ)
         self.ln.add('1.23')
+
+        self.assertEqual(len(self.ln.channels(pending=False)), 6)
+        self.assertEqual(len(self.ln.channels(pending=True)), 7)
+        self.assertEqual(len(self.ln.pending()), 1)
+        self.assertEqual(len(self.ln.channels('no-one', False)), 0)
+        self.assertEqual(len(self.ln.channels('al_cielo', False)), 1)
+        self.assertEqual(len(self.ln.channels('03db61876a', False)), 1)
+        self.assertEqual(len(self.ln.channels('02cdf83ef8', True)), 1)
 
     @unittest.skipIf(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_lncli_commands(self):
