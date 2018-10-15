@@ -151,7 +151,7 @@ class Lncli:
                 active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
                 private = '\U0001f512' if ch['private'] else ''
                 rows.append('%s %s%s' % (alias, active, private))
-                if ch['chan_id'] != '0':
+                if not private and ch['chan_id'] != '0':
                     rows.append(CH_LINK % ch['chan_id'])
                 rows.append(to_btc_str(ch['capacity']))
                 local = to_btc_str(ch['local_balance'])

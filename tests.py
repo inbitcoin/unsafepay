@@ -38,6 +38,9 @@ class TestLnd(unittest.TestCase):
         self.assertNotIn('\U0001f512', ''.join(self.ln.channels('mani_al_cielo')))
         self.assertIn('\U0001f512', self.ln.chs())
 
+        # Private channels do not have links to the explorer
+        self.assertNotIn('1ml.com', ''.join(self.ln.channels('037163149da6fbddd6e8')))
+
     def test_commands(self):
         self.ln.info()
         self.ln.uri()
