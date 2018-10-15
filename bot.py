@@ -17,8 +17,6 @@ NO_AUTH_COMMANDS = {
 }
 ALLOWED_COMMANDS = AUTH_COMMANDS | NO_AUTH_COMMANDS
 _24H = 60 * 60 * 24
-TX_LINK = 'https://www.smartbit.com.au/tx/%s'
-CH_LINK = 'https://1ml.com/channel/%s'
 
 bot = None
 ln = Lncli()
