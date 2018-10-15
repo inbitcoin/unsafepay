@@ -32,6 +32,12 @@ class TestLnd(unittest.TestCase):
         false = '020000000000000000000000000000000000000000000000000000000000000000'
         self.assertEqual(self.ln._alias(false), false)
 
+    @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_private_chs(self):
+        self.assertIn('\U0001f512', ''.join(self.ln.channels('037163149da6fbddd6e8')))
+        self.assertNotIn('\U0001f512', ''.join(self.ln.channels('mani_al_cielo')))
+        self.assertIn('\U0001f512', self.ln.chs())
+
     def test_commands(self):
         self.ln.info()
         self.ln.uri()

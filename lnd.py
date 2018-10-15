@@ -149,7 +149,8 @@ class Lncli:
             alias = self._alias(pubkey)
             if not filter_by_alias or filter_by_alias in alias or filter_by_alias in pubkey:
                 active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
-                rows.append('%s %s' % (alias, active))
+                private = '\U0001f512' if ch['private'] else ''
+                rows.append('%s %s%s' % (alias, active, private))
                 if ch['chan_id'] != '0':
                     rows.append(CH_LINK % ch['chan_id'])
                 rows.append(to_btc_str(ch['capacity']))
@@ -169,7 +170,8 @@ class Lncli:
             pubkey = ch['remote_pubkey']
             active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
             capacity = to_btc_str(ch['capacity']).rstrip('0').rstrip('.')
-            rows.append('%s %s %s' % (self._alias(pubkey, pubkey[:8]), capacity, active))
+            private = '\U0001f512' if ch['private'] else ''
+            rows.append('%s %s %s%s' % (self._alias(pubkey, pubkey[:8]), capacity, active, private))
         return '\n'.join(rows)
 
     def pending(self, filter_by_alias=None):
