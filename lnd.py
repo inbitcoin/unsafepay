@@ -16,7 +16,6 @@ ND_LINK = 'https://1ml.com/node/%s'
 ND_LINK_ALT = 'https://lightblock.me/lightning-node/%s'
 
 
-
 def to_btc_str(sats):
     return '{:.8f}'.format(Decimal(sats) / Decimal(1e8))
 
