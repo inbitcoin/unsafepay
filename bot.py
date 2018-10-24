@@ -10,7 +10,7 @@ from lnd import Lncli, NodeException
 from qr import decode, encode
 
 AUTH_COMMANDS = {
-    'pay', 'balance', 'ping', 'echo', 'unicode',
+    'pay', 'balance', 'ping', 'echo', 'unicode', 'oneml', 'lightblock',
 }
 NO_AUTH_COMMANDS = {
     'info', 'help', 'channels', 'chs', 'pending', 'add', 'uri',

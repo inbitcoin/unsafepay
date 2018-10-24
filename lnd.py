@@ -40,6 +40,8 @@ class Lncli:
     CMD = 'lncli'
 
     def __init__(self):
+        self._1ml = True
+        self._lightblock = True
         self.aliases = {}
         self._updated = 0
         self.update_aliases()
@@ -69,12 +71,11 @@ class Lncli:
     def info(self):
         obj = self._command('getinfo')
         n_chs = len(self._command('listchannels')['channels'])
-        rows = [obj['alias'],
-                ND_LINK % obj['identity_pubkey'],
-                ND_LINK_ALT % obj['identity_pubkey'],
-                'Active channels: %s' % obj['num_active_channels'],
-                'Channels: %d' % n_chs,
-                ]
+        rows = [obj['alias']]
+        self._1ml and rows.append(ND_LINK % obj['identity_pubkey'])
+        self._lightblock and rows.append(ND_LINK_ALT % obj['identity_pubkey'])
+        rows.append('Active channels: %s' % obj['num_active_channels'])
+        rows.append('Channels: %d' % n_chs)
         if obj['num_pending_channels']:
             rows.append('Pending channels: %s' % obj['num_pending_channels'])
         rows.append('Num peers: %s' % obj['num_peers'])
@@ -155,8 +156,8 @@ class Lncli:
                 private = '\U0001f512' if ch['private'] else ''
                 rows.append('%s %s%s' % (alias, active, private))
                 if not private and ch['chan_id'] != '0':
-                    rows.append(CH_LINK % ch['chan_id'])
-                    rows.append(CH_LINK_ALT % ch['chan_id'])
+                    self._1ml and rows.append(CH_LINK % ch['chan_id'])
+                    self._lightblock and rows.append(CH_LINK_ALT % ch['chan_id'])
                 rows.append(to_btc_str(ch['capacity']))
                 local = to_btc_str(ch['local_balance'])
                 remote = to_btc_str(ch['remote_balance'])
@@ -209,3 +210,15 @@ class Lncli:
             return False
         else:
             return True
+
+    def oneml(self):
+        """Toggle 1ml block explorer links"""
+        self._1ml = not self._1ml
+        print('1ml toggled', self._1ml, self._lightblock)
+        return '1ml toggled'
+
+    def lightblock(self):
+        """Toggle lightblock block explorer links"""
+        self._lightblock = not self._lightblock
+        print('lightblock toggled', self._1ml, self._lightblock)
+        return 'lightblock toggled'
