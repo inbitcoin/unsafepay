@@ -120,7 +120,7 @@ class Lncli:
             cmd.append('%d' % amt_to_sat(amt))
         out = self._command(*cmd)
         if 'pay_req' in out:
-            return out['pay_req']
+            return out['pay_req'], out['r_hash']
         else:
             return out
 

@@ -32,8 +32,9 @@ def text(msg):
     if hasattr(ln, cmd):
         try:
             out = getattr(ln, cmd)(*tokens[1:])
-            if cmd == 'add' and is_pay_req(out, True) or cmd == 'uri':
-                send_qr(chat_id, out)
+            if cmd == 'add' and is_pay_req(out[0], True) or cmd == 'uri':
+                send_qr(chat_id, out[0])
+                bot.sendMessage(chat_id, '#payment %s' % out[1])
             else:
                 if not isinstance(out, list):
                     out = [out]
