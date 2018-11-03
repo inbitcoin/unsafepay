@@ -9,13 +9,14 @@ from config import *
 from lnd import Lncli, NodeException
 from qr import decode, encode
 
-AUTH_COMMANDS = {
-    'pay', 'balance', 'ping', 'echo', 'unicode', 'oneml', 'lightblock', 'payment',
-}
-NO_AUTH_COMMANDS = {
+OVERT_COMMANDS = (
+    'pay', 'balance', 'oneml', 'lightblock', 'payment',
     'info', 'help', 'channels', 'chs', 'pending', 'add', 'uri',
-}
-ALLOWED_COMMANDS = AUTH_COMMANDS | NO_AUTH_COMMANDS
+)
+COVERT_COMMANDS = (
+    'ping', 'echo', 'unicode'
+)
+ALLOWED_COMMANDS = set(OVERT_COMMANDS + COVERT_COMMANDS)
 _24H = 60 * 60 * 24
 
 bot = None
@@ -44,7 +45,16 @@ def text(msg):
         except NodeException as exception:
             bot.sendMessage(chat_id, '\u274c ' + str(exception))
     elif cmd == 'help':
-        bot.sendMessage(chat_id, ' '.join(ALLOWED_COMMANDS))
+        if tokens[1:] and hasattr(ln, tokens[1]):
+            # Return doc of the command
+            cmd_doc = getattr(ln, tokens[1]).__doc__ or 'No doc, yet'
+            bot.sendMessage(chat_id, cmd_doc)
+        else:
+            help_msg = [
+                'help [cmd]',
+                'cmds = ' + ' '.join(OVERT_COMMANDS),
+            ]
+            bot.sendMessage(chat_id, '\n'.join(help_msg))
     elif cmd == 'ping':
         bot.sendMessage(chat_id, 'pong')
     elif cmd == 'echo':
