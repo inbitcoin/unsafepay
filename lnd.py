@@ -2,6 +2,7 @@
 """
 telegram bot
 """
+import re
 import subprocess
 import json
 from decimal import Decimal
@@ -123,6 +124,14 @@ class Lncli:
             return out['pay_req'], out['r_hash']
         else:
             return out
+
+    def payment(self, r_hash=None):
+        if r_hash and len(r_hash) == 64 and re.match('^[\da-f]{64}$', r_hash):
+            invoice = self._command('lookupinvoice', r_hash)
+            print('a', invoice)
+        else:
+            invoices = self._command('listinvoices')
+            print('b', invoices)
 
     def balance(self):
         """lncli walletbalance and channelbalance"""

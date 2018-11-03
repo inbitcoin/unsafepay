@@ -61,8 +61,10 @@ class TestLnd(unittest.TestCase):
         self.ln.pay(PAY_REQ)
         self.ln.pay(PAY_REQ, '0.001')
         self.ln.pay(PROTOCOL + PAY_REQ)
-        self.ln.add('1.23')
-
+        self.assertEqual(len(self.ln.add('1.23')), 2)
+        r_hash = '8692a0415ec87a56b6d79a485cf0aad99e118974e23bc4c627e038c91cf46668'
+        self.assertTrue(self.ln.payment(r_hash))
+        self.assertTrue(self.ln.payment())
         self.assertEqual(len(self.ln.channels(pending=False)), 6)
         self.assertEqual(len(self.ln.channels(pending=True)), 7)
         self.assertEqual(len(self.ln.pending()), 1)

@@ -10,7 +10,7 @@ from lnd import Lncli, NodeException
 from qr import decode, encode
 
 AUTH_COMMANDS = {
-    'pay', 'balance', 'ping', 'echo', 'unicode', 'oneml', 'lightblock',
+    'pay', 'balance', 'ping', 'echo', 'unicode', 'oneml', 'lightblock', 'payment',
 }
 NO_AUTH_COMMANDS = {
     'info', 'help', 'channels', 'chs', 'pending', 'add', 'uri',
@@ -34,12 +34,13 @@ def text(msg):
             out = getattr(ln, cmd)(*tokens[1:])
             if cmd == 'add' and is_pay_req(out[0], True) or cmd == 'uri':
                 send_qr(chat_id, out[0])
-                bot.sendMessage(chat_id, '#payment %s' % out[1])
+                bot.sendMessage(chat_id, 'payment %s' % out[1])
             else:
                 if not isinstance(out, list):
                     out = [out]
                 for ou in out:
-                    bot.sendMessage(chat_id, ou)
+                    if ou:
+                        bot.sendMessage(chat_id, ou)
         except NodeException as exception:
             bot.sendMessage(chat_id, '\u274c ' + str(exception))
     elif cmd == 'help':
