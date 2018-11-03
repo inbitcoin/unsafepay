@@ -126,7 +126,8 @@ class Lncli:
         else:
             return out
 
-    def __is_expired(self, expiration: int):
+    @staticmethod
+    def __is_expired(expiration: int):
         return time.time() > expiration
 
     def payment(self, r_hash=None):
