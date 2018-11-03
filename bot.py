@@ -11,10 +11,10 @@ from qr import decode, encode
 
 OVERT_COMMANDS = (
     'pay', 'balance', 'oneml', 'lightblock', 'payment',
-    'info', 'help', 'channels', 'chs', 'pending', 'add', 'uri',
+    'info', 'channels', 'chs', 'pending', 'add', 'uri',
 )
 COVERT_COMMANDS = (
-    'ping', 'echo', 'unicode'
+    'ping', 'echo', 'unicode', 'help',
 )
 ALLOWED_COMMANDS = set(OVERT_COMMANDS + COVERT_COMMANDS)
 _24H = 60 * 60 * 24
@@ -112,7 +112,11 @@ def is_authorized(msg):
 def send_alloewd_ids_config(msg):
     chat_id = msg['chat']['id']
     username = msg['chat']['username']
-    bot.sendMessage(chat_id, "ALLOWED_IDS = [(%d, '%s')]" % (chat_id, username))
+    msg = [
+        'Write the ALLOWED_IDS field in config.py',
+        "ALLOWED_IDS = [(%d, '%s')]" % (chat_id, username),
+    ]
+    bot.sendMessage(chat_id, '\n'.join(msg))
 
 
 def on_chat_message(msg):

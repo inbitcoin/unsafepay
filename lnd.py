@@ -71,6 +71,7 @@ class Lncli:
         self._updated = time.time()
 
     def info(self):
+        """Get information about the node"""
         obj = self._command('getinfo')
         n_chs = len(self._command('listchannels')['channels'])
         rows = [obj['alias']]
@@ -92,10 +93,15 @@ class Lncli:
         return '\n'.join(rows)
 
     def uri(self):
+        """Get the node uri
+        tg> uri"""
         return self._command('getinfo')['uris'][0]
 
     def pay(self, pay_req, amt=None):
-        """lncli payinvoice [command options] pay_req"""
+        """Pay an invoice
+        tg> pay <payment request> [amt]
+        If amt is a float it is considered a bitcoin amount, if amt is an integer it is considered a satoshi amount"""
+        # lncli payinvoice [command options] pay_req
         cmd = ['payinvoice', '-f']
         if pay_req.lower().startswith('lightning:'):
             pay_req = pay_req[10:]
@@ -116,7 +122,10 @@ class Lncli:
         return '\n'.join(rows)
 
     def add(self, amt=None):
-        """lncli addinvoice value"""
+        """Add invoice
+        tg> add [amt]
+        If amt is a float it is considered a bitcoin amount, if amt is an integer it is considered a satoshi amount"""
+        # lncli addinvoice value
         cmd = ['addinvoice']
         if amt:
             cmd.append('%d' % amt_to_sat(amt))
@@ -131,6 +140,10 @@ class Lncli:
         return time.time() > expiration
 
     def payment(self, r_hash=None):
+        """Check a payment status
+        tg> payment [r_hash]
+        If r_hash is not provided the last payment will be checked
+        """
         PAID = '\U0001f44d'
         NOT_PAID = '\U0001f44e'
         NOT_FOUND = 'Invoice not found'
@@ -159,7 +172,8 @@ class Lncli:
         return '\n'.join(rows)
 
     def balance(self):
-        """lncli walletbalance and channelbalance"""
+        """Walletbalance and channelbalance
+        tg> balance"""
         wallet = self._command('walletbalance')
         channel = self._command('channelbalance')
         rows = []
@@ -178,7 +192,10 @@ class Lncli:
         return self.aliases.get(pubkey) or default or pubkey
 
     def channels(self, filter_by_alias=None, pending=True):
-        """lncli listchannels"""
+        """List channels
+        tg> channles [filter]
+        Specify a filter to select channels by aliases and pubkeys"""
+        # lncli listchannels
         chs = self._command('listchannels')['channels']
         messages = []
         for ch in chs:
@@ -203,6 +220,8 @@ class Lncli:
         return messages
 
     def chs(self):
+        """Short version of channels
+        tg> chs"""
         chs = self._command('listchannels')['channels']
         rows = []
         for ch in chs:
@@ -214,6 +233,9 @@ class Lncli:
         return '\n'.join(rows)
 
     def pending(self, filter_by_alias=None):
+        """List pending channels
+        tg> pending [filter]
+        Specify a filter to select pending channels by aliases and pubkeys"""
         chs = self._command('pendingchannels')['pending_open_channels']
         messages = []
         for ch in chs:
@@ -246,13 +268,13 @@ class Lncli:
             return True
 
     def oneml(self):
-        """Toggle 1ml block explorer links"""
+        """Toggle https://1ml.com block explorer links
+        tg> oneml"""
         self._1ml = not self._1ml
-        print('1ml toggled', self._1ml, self._lightblock)
         return '1ml toggled'
 
     def lightblock(self):
-        """Toggle lightblock block explorer links"""
+        """Toggle https://lightblock.me block explorer links
+        tg> lightblock"""
         self._lightblock = not self._lightblock
-        print('lightblock toggled', self._1ml, self._lightblock)
         return 'lightblock toggled'
