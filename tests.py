@@ -65,6 +65,9 @@ class TestLnd(unittest.TestCase):
         r_hash = '8692a0415ec87a56b6d79a485cf0aad99e118974e23bc4c627e038c91cf46668'
         self.assertTrue(self.ln.payment(r_hash))
         self.assertTrue(self.ln.payment())
+        r_last = 'db1e21e569986d9f498d0667e97b743b114b4e1161d36f8260ecf7551ce6f1b1'
+        self.assertIn(r_last, self.ln.payment())
+        self.assertNotIn(r_hash, self.ln.payment(r_hash))
         self.assertEqual(len(self.ln.channels(pending=False)), 6)
         self.assertEqual(len(self.ln.channels(pending=True)), 7)
         self.assertEqual(len(self.ln.pending()), 1)

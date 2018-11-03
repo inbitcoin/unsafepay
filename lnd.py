@@ -143,7 +143,7 @@ class Lncli:
         rows.append('{} {}'.format(to_btc_str(invoice['value']), paid))
         if not r_hash:
             r_hex = base64.decodebytes(bytes(invoice['r_hash'], 'ascii')).hex()
-            rows.append('r={}'.format(r_hex))
+            rows.append(r_hex)
         creation = time.ctime(int(invoice['creation_date']))
         rows.append('Created on {}'.format(creation))
 
