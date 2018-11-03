@@ -10,7 +10,7 @@ from lnd import Lncli, NodeException
 from qr import decode, encode
 
 OVERT_COMMANDS = (
-    'pay', 'balance', 'oneml', 'lightblock', 'payment',
+    'pay', 'balance', '1ml', 'lightblock', 'payment',
     'info', 'channels', 'chs', 'pending', 'add', 'uri',
 )
 COVERT_COMMANDS = (
@@ -33,6 +33,13 @@ def lower_first(string):
     return string[0].lower() + string[1:]
 
 
+def escape_cmd(cmd):
+    """Python attrs cannot start with digits, if needed we escape them with n_"""
+    if '0' <= cmd[0] <= '9':
+        return 'n_' + cmd
+    return cmd
+
+
 def text(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     tokens = msg['text'].lstrip('/').split()
@@ -40,9 +47,9 @@ def text(msg):
     if cmd not in ALLOWED_COMMANDS:
         return
 
-    if hasattr(ln, cmd):
+    if hasattr(ln, escape_cmd(cmd)):
         try:
-            out = getattr(ln, cmd)(*tokens[1:])
+            out = getattr(ln, escape_cmd(cmd))(*tokens[1:])
             if cmd == 'add' and is_pay_req(out[0], True) or cmd == 'uri':
                 send_qr(chat_id, out[0])
                 bot.sendMessage(chat_id, 'payment %s' % out[1])
@@ -55,9 +62,9 @@ def text(msg):
         except NodeException as exception:
             bot.sendMessage(chat_id, '\u274c ' + str(exception))
     elif cmd == 'help':
-        if tokens[1:] and hasattr(ln, tokens[1]):
+        if tokens[1:] and hasattr(ln, escape_cmd(tokens[1])):
             # Return doc of the command
-            cmd_doc = format_doc(getattr(ln, tokens[1]).__doc__ or 'No doc, yet')
+            cmd_doc = format_doc(getattr(ln, escape_cmd(tokens[1])).__doc__ or 'No doc, yet')
             bot.sendMessage(chat_id, cmd_doc)
         else:
             help_msg = [
@@ -65,7 +72,7 @@ def text(msg):
                 'commands:',
             ]
             for cmd in OVERT_COMMANDS:
-                short_help = lower_first(getattr(ln, cmd).__doc__.split('\n', 1)[0])
+                short_help = lower_first(getattr(ln, escape_cmd(cmd)).__doc__.split('\n', 1)[0])
                 help_msg.append('{}: {}'.format(cmd, short_help))
             bot.sendMessage(chat_id, '\n'.join(help_msg))
     elif cmd == 'ping':

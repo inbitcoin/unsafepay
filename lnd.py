@@ -267,9 +267,9 @@ class Lncli:
         else:
             return True
 
-    def oneml(self):
+    def n_1ml(self):
         """Toggle https://1ml.com block explorer links
-        tg> oneml"""
+        tg> 1ml"""
         self._1ml = not self._1ml
         return '1ml toggled'
 
