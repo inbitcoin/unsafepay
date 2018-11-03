@@ -126,6 +126,9 @@ class Lncli:
         else:
             return out
 
+    def __is_expired(self, expiration: int):
+        return time.time() > expiration
+
     def payment(self, r_hash=None):
         PAID = '\U0001f44d'
         NOT_PAID = '\U0001f44e'
@@ -145,7 +148,12 @@ class Lncli:
             r_hex = base64.decodebytes(bytes(invoice['r_hash'], 'ascii')).hex()
             rows.append(r_hex)
         creation = time.ctime(int(invoice['creation_date']))
+        expiration = time.ctime(int(invoice['creation_date']) + int(invoice['expiry']))
+        expired = self.__is_expired(int(invoice['creation_date']) + int(invoice['expiry']))
+        exp_format = 'Expired on {}' if expired else 'Expires {}'
+
         rows.append('Created on {}'.format(creation))
+        rows.append(exp_format.format(expiration))
 
         return '\n'.join(rows)
 
