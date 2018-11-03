@@ -23,6 +23,11 @@ bot = None
 ln = Lncli()
 
 
+def format_doc(doc):
+    """Foramt the __doc__ str of Lncli class methods"""
+    return '\n'.join([x.strip() for x in doc.split('\n')])
+
+
 def text(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     tokens = msg['text'].lstrip('/').split()
@@ -47,7 +52,7 @@ def text(msg):
     elif cmd == 'help':
         if tokens[1:] and hasattr(ln, tokens[1]):
             # Return doc of the command
-            cmd_doc = getattr(ln, tokens[1]).__doc__ or 'No doc, yet'
+            cmd_doc = format_doc(getattr(ln, tokens[1]).__doc__ or 'No doc, yet')
             bot.sendMessage(chat_id, cmd_doc)
         else:
             help_msg = [
