@@ -25,7 +25,12 @@ ln = Lncli()
 
 def format_doc(doc):
     """Foramt the __doc__ str of Lncli class methods"""
-    return '\n'.join([x.strip() for x in doc.split('\n')])
+    return '\n'.join([x.strip() for x in doc.splitlines()])
+
+
+def lower_first(string):
+    """Lower only the first char of a string"""
+    return string[0].lower() + string[1:]
 
 
 def text(msg):
@@ -57,8 +62,11 @@ def text(msg):
         else:
             help_msg = [
                 'help [cmd]',
-                'cmds = ' + ' '.join(OVERT_COMMANDS),
+                'commands:',
             ]
+            for cmd in OVERT_COMMANDS:
+                short_help = lower_first(getattr(ln, cmd).__doc__.split('\n', 1)[0])
+                help_msg.append('{}: {}'.format(cmd, short_help))
             bot.sendMessage(chat_id, '\n'.join(help_msg))
     elif cmd == 'ping':
         bot.sendMessage(chat_id, 'pong')
