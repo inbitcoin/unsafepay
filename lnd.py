@@ -7,6 +7,7 @@ import subprocess
 import json
 from decimal import Decimal
 import time
+import base64
 import git
 
 _24H = 60 * 60 * 24
@@ -126,12 +127,27 @@ class Lncli:
             return out
 
     def payment(self, r_hash=None):
+        PAID = '\U0001f44d'
+        NOT_PAID = '\U0001f44e'
+        NOT_FOUND = 'Invoice not found'
         if r_hash and len(r_hash) == 64 and re.match('^[\da-f]{64}$', r_hash):
             invoice = self._command('lookupinvoice', r_hash)
-            print('a', invoice)
         else:
-            invoices = self._command('listinvoices')
-            print('b', invoices)
+            invoices = self._command('listinvoices', '--max_invoices', '1')['invoices']
+            if not invoices:
+                return NOT_FOUND
+            invoice = invoices[0]
+
+        rows = []
+        paid = PAID if invoice['settled'] else NOT_PAID
+        rows.append('{} {}'.format(to_btc_str(invoice['value']), paid))
+        if not r_hash:
+            r_hex = base64.decodebytes(bytes(invoice['r_hash'], 'ascii')).hex()
+            rows.append('r={}'.format(r_hex))
+        creation = time.ctime(int(invoice['creation_date']))
+        rows.append('Created on {}'.format(creation))
+
+        return '\n'.join(rows)
 
     def balance(self):
         """lncli walletbalance and channelbalance"""
