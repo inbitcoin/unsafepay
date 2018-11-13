@@ -69,14 +69,34 @@ def text(msg):
             cmd_doc = format_doc(getattr(ln, escape_cmd(tokens[1])).__doc__ or 'No doc, yet')
             bot.sendMessage(chat_id, cmd_doc)
         else:
-            help_msg = [
-                'help [cmd]',
-                'commands:',
-            ]
-            for cmd in OVERT_COMMANDS:
-                short_help = lower_first(getattr(ln, escape_cmd(cmd)).__doc__.split('\n', 1)[0])
-                help_msg.append('{}: {}'.format(cmd, short_help))
-            bot.sendMessage(chat_id, '\n'.join(help_msg))
+            if tokens[1:] and escape_cmd(tokens[1]) == 'help':
+                cmd_doc = '''General help or specific help for commands
+                tg> help [cmd]
+                Specify a command to get a specific help'''
+                bot.sendMessage(chat_id, format_doc(cmd_doc))
+            else:
+                help_msg = [
+                    'Commands:',
+                ]
+                for cmd in OVERT_COMMANDS:
+                    short_help = lower_first(getattr(ln, escape_cmd(cmd)).__doc__.split('\n', 1)[0])
+                    help_msg.append('{}: {}'.format(cmd, short_help))
+                help_msg.append('{}: {}'.format('help', 'this help and help for commands'))
+
+                SYMBOLS = [
+                    ('\u26a1\ufe0f', 'active'),
+                    ('\U0001f64a', 'not active'),
+                    ('\U0001f512', 'private'),
+                    ('\u23f3', 'pending'),
+                ]
+
+                help_msg.append('')
+                help_msg.append('Symbols:')
+
+                for sym, desc in SYMBOLS:
+                    help_msg.append('{}: {}'.format(sym, desc))
+
+                bot.sendMessage(chat_id, '\n'.join(help_msg))
     elif cmd == 'ping':
         bot.sendMessage(chat_id, 'pong')
     elif cmd == 'echo':
