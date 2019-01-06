@@ -108,7 +108,7 @@ def text(msg):
         bot.sendMessage(chat_id, encoded)
     else:
         bot.sendMessage(chat_id, 'Not implemented, sorry')
-    ln.update_aliases()
+    # ln.update_aliases()
 
 
 def photo(msg):

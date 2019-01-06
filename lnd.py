@@ -46,7 +46,7 @@ class Lncli:
         self._lightblock = True
         self.aliases = {}
         self._updated = 0
-        self.update_aliases()
+        # self.update_aliases()
 
     @staticmethod
     def _command(*cmd):
