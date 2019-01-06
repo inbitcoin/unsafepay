@@ -12,6 +12,7 @@ from qr import decode, encode
 OVERT_COMMANDS = (
     'pay', 'balance', '1ml', 'lightblock', 'payment',
     'info', 'channels', 'chs', 'pending', 'add', 'uri',
+    'address',
 )
 COVERT_COMMANDS = (
     'ping', 'echo', 'unicode', 'help',
@@ -53,7 +54,7 @@ def text(msg):
             if cmd == 'add' and is_pay_req(out[0], True):
                 send_qr(chat_id, out[0])
                 bot.sendMessage(chat_id, 'payment %s' % out[1])
-            elif cmd == 'uri':
+            elif cmd in ('uri', 'address'):
                 send_qr(chat_id, out)
             else:
                 if not isinstance(out, list):

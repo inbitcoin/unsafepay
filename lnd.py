@@ -187,6 +187,12 @@ class Lncli:
                 '%s: %s' % (key.replace('_', ' '), to_btc_str(channel[key])))
         return '\n'.join(rows)
 
+    def address(self):
+        """Generate a new bech32 bitcoin address
+        tg> address"""
+        out = self._command('newaddress', 'p2wkh')
+        return out['address']
+
     def _alias(self, pubkey, default=None):
         """Return a not null alias or the pubkey"""
         return self.aliases.get(pubkey) or default or pubkey

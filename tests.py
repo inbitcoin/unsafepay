@@ -54,6 +54,7 @@ class TestLnd(unittest.TestCase):
         self.ln.chs()
         self.ln.feereport()
         self.ln.is_pay_req(PAY_REQ)
+        self.ln.address().startswith('bc1')
 
     @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_mock_commands(self):
