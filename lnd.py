@@ -46,7 +46,7 @@ class Lncli:
         self._lightblock = True
         self.aliases = {}
         self._updated = 0
-        # self.update_aliases()
+        self.update_aliases()
 
     @staticmethod
     def _command(*cmd):
@@ -63,7 +63,11 @@ class Lncli:
 
         if time.time() - self._updated < _24H:
             return
-        graph = self._command('describegraph')
+        try:
+            graph = self._command('describegraph')
+        except NodeException as e:
+            print(e)
+            return
         aliases = {}
         for node in graph['nodes']:
             aliases[node['pub_key']] = node['alias']
