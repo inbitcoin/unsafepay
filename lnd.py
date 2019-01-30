@@ -9,6 +9,8 @@ from decimal import Decimal
 import time
 import base64
 import git
+import hashlib
+import binascii
 
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
@@ -208,7 +210,12 @@ class Lncli:
         if self._cities is None:
             with open('cities.txt', 'rt') as fd:
                 self._cities = [x.strip() for x in fd.readlines()]
-        return self._cities[hash(pubkey) % len(self._cities)]
+        return self._cities[self._int_hash_pubkey(pubkey) % len(self._cities)]
+
+    @staticmethod
+    def _int_hash_pubkey(pubkey):
+        hash = hashlib.sha256(binascii.unhexlify(pubkey)).digest()
+        return int.from_bytes(hash, byteorder='big', signed=False)
 
     def channels(self, filter_by_alias=None, pending=True):
         """List channels
