@@ -45,6 +45,7 @@ class Lncli:
         self._1ml = True
         self._lightblock = True
         self.aliases = {}
+        self._cities = None
         self._updated = 0
         self.update_aliases()
 
@@ -199,7 +200,15 @@ class Lncli:
 
     def _alias(self, pubkey, default=None):
         """Return a not null alias or the pubkey"""
-        return self.aliases.get(pubkey) or default or pubkey
+        if self.aliases:
+            return self.aliases.get(pubkey) or default or pubkey
+        return self._city_alias(pubkey)
+
+    def _city_alias(self, pubkey):
+        if self._cities is None:
+            with open('cities.txt', 'rt') as fd:
+                self._cities = [x.strip() for x in fd.readlines()]
+        return self._cities[hash(pubkey) % len(self._cities)]
 
     def channels(self, filter_by_alias=None, pending=True):
         """List channels
