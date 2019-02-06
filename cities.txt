@@ -59,11 +59,7 @@ Paphos
 Pyla
 Troodos
 Alavieska
-Brändö
-Enontekiö
-Finström
 Geta
-Haapajärvi
 Ikaalinen
 Joensuu
 Kristiinankaupunki
@@ -78,11 +74,9 @@ Taivassalo
 Uusikaarlepyy
 Valkeakoski
 Ylitornio
-Äänekoski
 Aix-en-Provence
 Amiens
 Angers
-Besançon
 Bordeaux
 Brest
 Clermont-Ferrand
@@ -98,12 +92,10 @@ Metz
 Montpellier
 Nantes
 Nice
-Nîmes
 Paris
 Reims
 Rennes
 Saint-Denis
-Saint-Étienne
 Strasbourg
 Toulon
 Toulouse
@@ -279,7 +271,6 @@ Fiumicino
 Florence
 Foggia
 Foligno
-Forlì
 Gallarate
 Gela
 Genoa
@@ -292,7 +283,6 @@ Lecce
 Legnano
 Livorno
 Lucca
-L’Aquila
 Manfredonia
 Marano di Napoli
 Marsala
