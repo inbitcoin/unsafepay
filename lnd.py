@@ -202,9 +202,7 @@ class Lncli:
 
     def _alias(self, pubkey, default=None):
         """Return a not null alias or the pubkey"""
-        if self.aliases:
-            return self.aliases.get(pubkey) or default or pubkey
-        return self._city_alias(pubkey)
+        return self.aliases.get(pubkey) or default or self._city_alias(pubkey)
 
     def _city_alias(self, pubkey):
         if self._cities is None:
@@ -255,7 +253,7 @@ class Lncli:
             active = '\u26a1\ufe0f' if ch['active'] else '\U0001f64a'
             capacity = to_btc_str(ch['capacity']).rstrip('0').rstrip('.')
             private = '\U0001f512' if ch['private'] else ''
-            rows.append('%s %s %s%s' % (self._alias(pubkey, pubkey[:8]), capacity, active, private))
+            rows.append('%s %s %s%s' % (self._alias(pubkey), capacity, active, private))
         return '\n'.join(rows)
 
     def pending(self, filter_by_alias=None):
