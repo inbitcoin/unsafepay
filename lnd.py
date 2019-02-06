@@ -168,13 +168,15 @@ class Lncli:
         if not r_hash:
             r_hex = base64.decodebytes(bytes(invoice['r_hash'], 'ascii')).hex()
             rows.append(r_hex)
-        creation = time.ctime(int(invoice['creation_date']))
-        expiration = time.ctime(int(invoice['creation_date']) + int(invoice['expiry']))
-        expired = self.__is_expired(int(invoice['creation_date']) + int(invoice['expiry']))
-        exp_format = 'Expired on {}' if expired else 'Expires {}'
 
+        creation = time.ctime(int(invoice['creation_date']))
         rows.append('Created on {}'.format(creation))
-        rows.append(exp_format.format(expiration))
+
+        if not invoice['settled']:
+            expiration = time.ctime(int(invoice['creation_date']) + int(invoice['expiry']))
+            expired = self.__is_expired(int(invoice['creation_date']) + int(invoice['expiry']))
+            exp_format = 'Expired on {}' if expired else 'Expires {}'
+            rows.append(exp_format.format(expiration))
 
         return '\n'.join(rows)
 
