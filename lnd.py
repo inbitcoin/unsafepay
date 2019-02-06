@@ -172,7 +172,10 @@ class Lncli:
         creation = time.ctime(int(invoice['creation_date']))
         rows.append('Created on {}'.format(creation))
 
-        if not invoice['settled']:
+        if invoice['settled']:
+            settled = time.ctime(int(invoice['settle_date']))
+            rows.append('Settled on {}'.format(settled))
+        else:
             expiration = time.ctime(int(invoice['creation_date']) + int(invoice['expiry']))
             expired = self.__is_expired(int(invoice['creation_date']) + int(invoice['expiry']))
             exp_format = 'Expired on {}' if expired else 'Expires {}'
