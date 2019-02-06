@@ -24,13 +24,25 @@ class TestLnd(unittest.TestCase):
         self.assertTrue(len(self.ln.aliases))
         # null string alias
         pub = '03aa434d9ff5d5470033aa654f201dbbdce79955c61e9e48a6674d203ae3b689f5'
-        self.assertEqual(self.ln._alias(pub), pub)
+        self.assertEqual(self.ln._alias(pub, pub), pub)
+        self.assertNotEqual(self.ln._alias(pub), pub)
 
         mani = '03db61876a9a50e5724048170aeb14f0096e503def38dc149d2a4ca71efd95a059'
         self.assertEqual(self.ln._alias(mani), 'mani_al_cielo')
 
         false = '020000000000000000000000000000000000000000000000000000000000000000'
-        self.assertEqual(self.ln._alias(false), false)
+        self.assertEqual(self.ln._alias(false, false), false)
+
+        with open('cities.txt', 'rt') as fd:
+            cities = [x.strip() for x in fd.readlines()]
+        self.assertIn(self.ln._alias(false).split(maxsplit=1)[1], cities)
+
+        CITYSCAPE = '\U0001f3d9'
+        CITY_DUSK = '\U0001f306'
+        if self.ln.aliases:
+            self.assertEqual(self.ln._alias(false).split()[0], CITY_DUSK)
+        else:
+            self.assertEqual(self.ln._alias(false).split()[0], CITYSCAPE)
 
     @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_private_chs(self):
@@ -71,7 +83,9 @@ class TestLnd(unittest.TestCase):
         self.assertNotIn(r_hash, self.ln.payment(r_hash))
         # Expiration tests
         self.assertIn('Expired on', self.ln.payment())
-        self.assertIn('Expires', self.ln.payment(r_hash))
+        self.assertNotIn('Settled on', self.ln.payment())
+        self.assertNotIn('Expires', self.ln.payment(r_hash))
+        self.assertIn('Settled on', self.ln.payment(r_hash))
         self.assertEqual(len(self.ln.channels(pending=False)), 6)
         self.assertEqual(len(self.ln.channels(pending=True)), 7)
         self.assertEqual(len(self.ln.pending()), 1)
