@@ -99,12 +99,9 @@ class TestLnd(unittest.TestCase):
 
         self.assertTrue(self.ln.is_pay_req(PAY_REQ))
         self.assertTrue(self.ln.is_pay_req(PROTOCOL + PAY_REQ))
-        with self.assertRaises(NodeException):
-            self.ln.pay(PAY_REQ)
-        with self.assertRaises(NodeException):
-            self.ln.pay(PAY_REQ, '0.001')
-        with self.assertRaises(NodeException):
-            self.ln.pay('lightning:' + PAY_REQ)
+        self.assertIn('invoice expired', self.ln.pay(PAY_REQ))
+        self.assertIn('invoice expired', self.ln.pay(PAY_REQ, '0.001'))
+        self.assertIn('invoice expired', self.ln.pay('lightning:' + PAY_REQ))
         with self.assertRaises(NodeException):
             self.ln.add('1.23')
         with self.assertRaises(NodeException):
