@@ -205,10 +205,14 @@ class Lncli:
         return self.aliases.get(pubkey) or default or self._city_alias(pubkey)
 
     def _city_alias(self, pubkey):
+        CITYSCAPE = '\U0001f3d9'
+        CITY_DUSK = '\U0001f306'
         if self._cities is None:
             with open('cities.txt', 'rt') as fd:
                 self._cities = [x.strip() for x in fd.readlines()]
-        return self._cities[self._int_hash_pubkey(pubkey) % len(self._cities)]
+        city = self._cities[self._int_hash_pubkey(pubkey) % len(self._cities)]
+        emoji = CITY_DUSK if self.aliases else CITYSCAPE
+        return emoji + ' ' + city
 
     @staticmethod
     def _int_hash_pubkey(pubkey):
