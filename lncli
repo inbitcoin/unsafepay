@@ -16,7 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
+from os import environ
 from lncli import cmds
+from tests import MockIndex
+
 
 if not sys.argv[1:]:
     sys.exit()
@@ -24,5 +27,6 @@ if not sys.argv[1:]:
 file = sys.stdout
 # file = sys.stderr
 cmd = sys.argv[1]
-file.write(cmds().get(cmd, ''))
+data = cmds().get(cmd, [''])[MockIndex.get(cmd)]
+file.write(data)
 sys.exit(file == sys.stderr)

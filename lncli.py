@@ -16,12 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import time
+from collections import defaultdict
 
 five_min_ago = int(time.time() - 60 * 5)
 
 
+def commands_sort(item):
+    cmd_index = item[0].split('__')
+    if len(cmd_index) == 1:
+        return cmd_index[0], 0
+    return cmd_index[0], int(cmd_index[1])
+
+
+def group_by_index(data):
+    out = defaultdict(list)
+    for key, value in sorted(data.items(), key=commands_sort):
+        out[key.split('__')[0]].append(value)
+    return out
+
+
 def cmds():
-    getinfo = '{"identity_pubkey":"0229bfbea3f31a9b720b9da68e20b53c692860769e446f25daba27f6e9e045ea63","alias":"B Boo","num_pending_channels":0,"num_active_channels":3,"num_peers":7,"block_height":527017,"block_hash":"0000000000000000002072fd092dd211519cff013a46c9ba216df1899f344ce8","synced_to_chain":true,"testnet":false,"chains":["bitcoin"],"uris":["0229bfbea3f31a9b720b9da68e20b53c692860769e446f25daba27f6e9e045ea63@93.40.7.67:9735"],"best_header_timestamp":"1528740387","version":"0.4.2-beta commit=7cf5ebe2650b6798182e10be198c7ffc1f1d6e19"}'
+    getinfo__0 = '{"identity_pubkey":"0229bfbea3f31a9b720b9da68e20b53c692860769e446f25daba27f6e9e045ea63","alias":"B Boo","num_pending_channels":0,"num_active_channels":3,"num_peers":7,"block_height":527017,"block_hash":"0000000000000000002072fd092dd211519cff013a46c9ba216df1899f344ce8","synced_to_chain":true,"testnet":false,"chains":["bitcoin"],"uris":["0229bfbea3f31a9b720b9da68e20b53c692860769e446f25daba27f6e9e045ea63@93.40.7.67:9735"],"best_header_timestamp":"1528740387","version":"0.4.2-beta commit=7cf5ebe2650b6798182e10be198c7ffc1f1d6e19"}'
+    getinfo__1 = '{"identity_pubkey":"0370a1b5e29423e2a1a1da474c98c2f069975db2a8ecc04d8bf68e30468543953d","alias":"Fanghiglia","num_pending_channels":1,"num_active_channels":4,"num_peers":5,"block_height":1456181,"block_hash":"000000000000011d36f08d2f90d4ad965ccf822c006daec4e377953d70f2dfd0","synced_to_chain":true,"testnet":true,"chains":["bitcoin"],"uris":[],"best_header_timestamp":"1549573875","version":"0.5.2-beta commit=v0.5.2-beta-rc7","num_inactive_channels":3}'
     # payinvoice = '{"payment_error":"unable to find a path to destination","payment_preimage":"","payment_route":null}'
     payinvoice = '{"payment_error":"","payment_preimage":"d395f4966b9ab34219e6d22676127562c67d59d9f3138a6fa834500a325ee378","payment_route":{"total_time_lock":527561,"total_fees":1,"total_amt":149,"hops":[{"chan_id":579098480736010241,"chan_capacity":592440,"amt_to_forward":148,"fee":1,"expiry":527417,"amt_to_forward_msat":148002,"fee_msat":1118},{"chan_id":572939016663203840,"chan_capacity":1000000,"amt_to_forward":148,"expiry":527273,"amt_to_forward_msat":148000,"fee_msat":2},{"chan_id":579319482654392320,"chan_capacity":1000000,"amt_to_forward":148,"expiry":527273,"amt_to_forward_msat":148000}],"total_fees_msat":1120,"total_amt_msat":149120}}'
     addinvoice = '{"r_hash":"bcb1cc2cca6a26bf0d2ba86ed4dc09b64d45ccecff663819eb56ab5477481ed6","pay_req":"lnbc1pd3aml7pp5hjcuctx2dgnt7rft4phdfhqfkex5tn8vlanrsx0t2644ga6grmtqdqqcqzyshxnsetaufstvawr83yq6st9kjk072d2yp7cu4dawyc36ac05rva9ar7mmt8mldg3v56krx80jp7rdycrxjcz9qea6z4t3dvm2aan8xgpu7ey67"}'
@@ -40,4 +56,4 @@ def cmds():
     newaddress = '{"address":"bc1qqkpdkgemcrn2yuwmcjj3fcypc6mfelgx23syxf"}'
     error = '[lncli] rpc error: code = Unknown desc = payment of 1.2 BTC is too large, max payment allowed is 0.04294967 BTC'
 
-    return locals()
+    return group_by_index(locals())

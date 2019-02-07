@@ -19,6 +19,7 @@ import unittest
 import os
 import json
 import tempfile
+from os import environ
 from unittest import skipIf, mock
 from lnd import Lncli, NodeException
 import lncli
@@ -26,8 +27,28 @@ import qr
 
 CMDS = lncli.cmds()
 PROTOCOL = 'lightning:'
-PAY_REQ = json.loads(CMDS['addinvoice'])['pay_req']
+PAY_REQ = json.loads(CMDS['addinvoice'][0])['pay_req']
 LNCLI_MOCK = os.environ['PATH'].startswith('.:')  # launch with: PATH=.:$PATH ./tests.py
+
+
+class MockIndex:
+    PRE = 'LNCLI_MOCK_INDEX__'
+
+    @classmethod
+    def set(cls, cmd, index):
+        environ[cls.PRE + cmd] = str(index)
+
+    @classmethod
+    def clean(cls):
+        for var in environ:
+            if var.startswith(cls.PRE):
+                del environ[var]
+
+    @classmethod
+    def get(cls, cmd):
+        if cls.PRE + cmd in environ:
+            return int(environ[cls.PRE + cmd])
+        return 0
 
 
 class TestLnd(unittest.TestCase):
