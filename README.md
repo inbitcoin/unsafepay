@@ -5,7 +5,7 @@
 
 The bot calls `lncli`. If it works, the bot might also.
 
-[INSTALL](INSTALL.txt) to install.
+[INSTALL](INSTALL.md) to install.
 
 ### Features
 
