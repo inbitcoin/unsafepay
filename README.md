@@ -15,3 +15,4 @@ The bot calls `lncli`. If it works, the bot might also.
 * Get channels status
 * Get node information
 * Get a bitcoin address
+* Use the `help` for more details
