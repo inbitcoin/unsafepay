@@ -106,6 +106,12 @@ class TestLnd(unittest.TestCase):
         self.ln.address().startswith('bc1')
 
     @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_getinfo_missed_uris(self):
+        self.ln.info()
+        MockIndex.set('getinfo', 1)
+        self.ln.info()
+
+    @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_mock_commands(self):
 
         self.ln.pay(PAY_REQ)

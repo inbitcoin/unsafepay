@@ -105,7 +105,8 @@ class Lncli:
         if obj['num_pending_channels']:
             rows.append('Pending channels: %s' % obj['num_pending_channels'])
         rows.append('Num peers: %s' % obj['num_peers'])
-        rows.append('%s' % obj['uris'][0])
+        if obj['uris']:
+            rows.append('%s' % obj['uris'][0])
         if not obj['synced_to_chain']:
             rows.append('Not synced')
         rows.append(self.balance())
