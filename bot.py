@@ -2,10 +2,11 @@
 import time
 import tempfile
 import os
+import os.path
 import re
+from random import randint
 import telepot
 from telepot.loop import MessageLoop
-from config import *
 from lnd import Lncli, NodeException
 from qr import decode, encode
 
@@ -22,6 +23,9 @@ _24H = 60 * 60 * 24
 
 bot = None
 ln = Lncli()
+
+authorized = None
+challenge = None, None  # chat_id, challeng
 
 
 def format_doc(doc):
@@ -140,27 +144,25 @@ def send_qr(chat_id, data):
 
 def is_authorized(msg):
     chat_id = msg['chat']['id']
-    username = msg['chat']['username']
-    for allowed in ALLOWED_IDS:
-        if chat_id == allowed[0] and username == allowed[1]:
-            return True
-    return False
+    return authorized == chat_id
 
 
-def send_alloewd_ids_config(msg):
+def is_paired():
+    return authorized is not None
+
+
+def send_challenge(msg):
+    global challenge
     chat_id = msg['chat']['id']
-    username = msg['chat']['username']
-    msg = [
-        'Write the ALLOWED_IDS field in config.py',
-        "ALLOWED_IDS = [(%d, '%s')]" % (chat_id, username),
-    ]
-    bot.sendMessage(chat_id, '\n'.join(msg))
+    challenge = chat_id, randint(1, 99999)
+    bot.sendMessage(chat_id, str(challenge[1]))
 
 
 def on_chat_message(msg):
     """ handle chat """
     if not is_authorized(msg):
-        send_alloewd_ids_config(msg)
+        if not is_paired():
+            send_challenge(msg)
         return
 
     if 'text' in msg:
@@ -176,14 +178,62 @@ def is_pay_req(pay_req, weak=False):
     return False
 
 
+def config_load():
+    if os.path.isfile('config'):
+        with open('config', 'rt') as fd:
+            rows = [x.strip() for x in fd.readlines()]
+
+        if len(rows) >= 2:
+            token = rows[0]
+            chat_id = int(rows[1])
+            return token, chat_id
+
+        if len(rows) == 1:
+            return rows[0], None
+
+    return None, None
+
+
+def config_save(*rows):
+    with open('config', 'wt') as fd:
+        fd.writelines(['{}\n'.format(x) for x in rows])
+
+
 def start():
     global bot
+    global authorized
 
-    bot = telepot.Bot(UNSAFEPAY_TELEGRAM)
+    token, authorized = config_load()
+
+    while not token:
+        print('Talk with the BotFather on Telegram (https://telegram.me/BotFather), create a bot and insert the token')
+        token = input('> ')
+
+    if authorized is None:
+        config_save(token)
+
+    bot = telepot.Bot(token)
     # answerer = telepot.helper.Answerer(bot)
 
     MessageLoop(bot, {'chat': on_chat_message}).run_as_thread()
     print('Listening ...')
+
+    while not authorized:
+        print('Please add your bot on Telegram, than copy here the numeric code')
+        try:
+            code = int(input('> '))
+        except ValueError:
+            continue
+        if int(code) == challenge[1]:
+            # User paired
+            msg = [
+                '\U0001f308 Congratulations \U0001f308',
+                'Your bot is now ready for use \u26a1\ufe0f'
+            ]
+            print('Congratulations')
+            authorized = challenge[0]  # chat_id
+            config_save(token, authorized)
+            bot.sendMessage(authorized, '\n'.join(msg))
 
     # Keep the program running.
     while 1:
