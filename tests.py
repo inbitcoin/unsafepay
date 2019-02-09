@@ -81,6 +81,16 @@ class TestLnd(unittest.TestCase):
         else:
             self.assertEqual(self.ln._alias(false).split()[0], CITYSCAPE)
 
+    def test_cities_file(self):
+        """cities.txt must be ascii encoded"""
+        with open('cities.txt', 'rt') as fd:
+            data = fd.readlines()
+        for city in data:
+            try:
+                city.encode('ascii')
+            except UnicodeEncodeError:
+                self.fail('{} is not ascii encoded'.format(city.strip()))
+
     @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_private_chs(self):
         self.assertIn('\U0001f512', ''.join(self.ln.channels('037163149da6fbddd6e8')))
