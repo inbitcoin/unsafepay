@@ -150,7 +150,7 @@ class Lncli:
         tg> add [amt]
         If amt is a float it is considered a bitcoin amount, if amt is an integer it is considered a satoshi amount"""
         # lncli addinvoice value
-        cmd = ['addinvoice']
+        cmd = ['addinvoice', '--expiry', '43200']
         if amt:
             cmd.append('%d' % amt_to_sat(amt))
         out = self._command(*cmd)
