@@ -176,6 +176,7 @@ def send_challenge(msg):
 
 def on_chat_message(msg):
     """ handle chat """
+    bot.sendMessage(msg['chat']['id'], '\U0001f916')
     if not is_authorized(msg):
         if not is_paired():
             send_challenge(msg)
