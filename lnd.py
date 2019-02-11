@@ -330,6 +330,8 @@ class Lncli:
         return 'lightblock toggled'
 
     def decode(self, pay_req):
+        """Decode a payment request
+        tg> decode <payment request>"""
         if not self.is_pay_req(pay_req):
             return 'This is not a payment request'
         decoded = self._command('decodepayreq', pay_req)
