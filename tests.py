@@ -147,6 +147,29 @@ class TestLnd(unittest.TestCase):
         self.assertEqual(len(self.ln.channels('03db61876a', False)), 1)
         self.assertEqual(len(self.ln.channels('02cdf83ef8', True)), 1)
 
+    @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_mock_decode(self):
+
+        enc_payreq = self.ln.add('1.23')[0]
+        dec_payreq = self.ln.decode(enc_payreq)
+        self.assertIn('To ', dec_payreq)
+        self.assertIn('Pubkey ', dec_payreq)
+        self.assertIn('Amount ', dec_payreq)
+        self.assertIn('Description ', dec_payreq)
+        self.assertIn('Created on ', dec_payreq)
+        self.assertIn('Expired on ', dec_payreq)
+
+        # Optional outputs
+        MockIndex.set('decodepayreq', 1)
+        dec_payreq = self.ln.decode(enc_payreq)
+        self.assertNotIn('To ', dec_payreq)
+        self.assertNotIn('Description ', dec_payreq)
+
+    @unittest.skipIf(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_decode(self):
+        error = self.ln.decode('No')
+        self.assertIn('This is not a payment request', error)
+
     @unittest.skipIf(LNCLI_MOCK, "Differences between ./lncli and lncli")
     def test_lncli_commands(self):
 

@@ -29,7 +29,7 @@ from qr import decode, encode
 OVERT_COMMANDS = (
     'pay', 'balance', '1ml', 'lightblock', 'payment',
     'info', 'channels', 'chs', 'pending', 'add', 'uri',
-    'address',
+    'address', 'decode',
 )
 COVERT_COMMANDS = (
     'ping', 'echo', 'unicode', 'help',

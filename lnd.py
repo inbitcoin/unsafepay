@@ -328,3 +328,32 @@ class Lncli:
         tg> lightblock"""
         self._lightblock = not self._lightblock
         return 'lightblock toggled'
+
+    def decode(self, pay_req):
+        if not self.is_pay_req(pay_req):
+            return 'This is not a payment request'
+        decoded = self._command('decodepayreq', pay_req)
+        pubkey = decoded['destination']
+        rows = []
+        alias = self._alias(pubkey, '-')
+        if alias != '-':
+            rows.append('To {}'.format(alias))
+        rows.append('Pubkey {}'.format(pubkey))
+        amount = int(decoded['num_satoshis'])
+        if amount:
+            if amount > .0001 * 1e8:
+                amount_str = 'Amount {} btc'.format(to_btc_str(amount))
+            else:
+                amount_str = 'Amount {} sat'.format(amount)
+            rows.append(amount_str)
+        if decoded['description']:
+            rows.append('Description {}'.format(decoded['description']))
+
+        creation = time.ctime(int(decoded['timestamp']))
+        rows.append('Created on {}'.format(creation))
+        expiration = time.ctime(int(decoded['timestamp']) + int(decoded['expiry']))
+        expired = self.__is_expired(int(decoded['timestamp']) + int(decoded['expiry']))
+        exp_format = 'Expired on {}' if expired else 'Expires {}'
+        rows.append(exp_format.format(expiration))
+
+        return '\n'.join(rows)
