@@ -103,12 +103,19 @@ class TestLnd(unittest.TestCase):
         # Private channels do not have links to the explorer
         self.assertNotIn('1ml.com', ''.join(self.ln.channels('037163149da6fbddd6e8')))
 
-    def test_commands(self):
+    @patch('requests.get')
+    def test_commands(self, mock_get):
+        mock_get.return_value = FakeRequests()
+
         self.ln.info()
         self.ln.uri()
         self.ln.add()
         self.ln.add('123')
         self.ln.add('0.001')
+        self.ln.add('7')
+        self.ln.add('6.7€')
+        self.ln.add('6.8e')
+        self.ln.add('6.9E')
         self.ln.balance()
         self.assertIsInstance(self.ln.channels(pending=False), list)
         self.assertIsInstance(self.ln.channels(pending=True), list)
@@ -125,10 +132,16 @@ class TestLnd(unittest.TestCase):
         self.ln.info()
 
     @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
-    def test_mock_commands(self):
+    @patch('requests.get')
+    def test_mock_commands(self, mock_get):
+        mock_get.return_value = FakeRequests()
 
         self.ln.pay(PAY_REQ)
         self.ln.pay(PAY_REQ, '0.001')
+        self.ln.pay(PAY_REQ, '7')
+        self.ln.pay(PAY_REQ, '6.7€')
+        self.ln.pay(PAY_REQ, '6.8e')
+        self.ln.pay(PAY_REQ, '6.9E')
         self.ln.pay(PROTOCOL + PAY_REQ)
         self.assertEqual(len(self.ln.add('1.23')), 2)
         r_hash = '8692a0415ec87a56b6d79a485cf0aad99e118974e23bc4c627e038c91cf46668'
@@ -204,6 +217,27 @@ class TestQr(unittest.TestCase):
         os.remove(name)
 
 
+class FakeRequests:
+    """We should use mock here"""
+    DATA = {
+        'error': [],
+        'result': {'XXBTZEUR': {
+            'a': ['3184.60000', '14', '14.000'],
+            'b': ['3184.50000', '3', '3.000'],
+            'c': ['3184.50000', '0.22166006'],
+            'h': ['3198.70000', '3198.70000'],
+            'l': ['3145.70000', '3145.70000'],
+            'o': '3186.90000',
+            'p': ['3174.51858', '3174.90884'],
+            't': [12463, 13595],
+            'v': ['3591.35599872', '3810.41919298']}
+        }
+    }
+
+    def json(self):
+        return self.DATA
+
+
 class FiatRate(unittest.TestCase):
 
     CACHE = {'eur': (3000, time())}
@@ -224,26 +258,6 @@ class FiatRate(unittest.TestCase):
 
     @patch('requests.get')
     def test_kraken_mock(self, mock_get):
-
-        class FakeRequests:
-            """We should use mock here"""
-            DATA = {
-                'error': [],
-                'result': {'XXBTZEUR': {
-                    'a': ['3184.60000', '14', '14.000'],
-                    'b': ['3184.50000', '3', '3.000'],
-                    'c': ['3184.50000', '0.22166006'],
-                    'h': ['3198.70000', '3198.70000'],
-                    'l': ['3145.70000', '3145.70000'],
-                    'o': '3186.90000',
-                    'p': ['3174.51858', '3174.90884'],
-                    't': [12463, 13595],
-                    'v': ['3591.35599872', '3810.41919298']}
-                }
-            }
-
-            def json(self):
-                return self.DATA
 
         mock_get.return_value = FakeRequests()
         expected_price = float(FakeRequests.DATA['result']['XXBTZEUR']['c'][0])

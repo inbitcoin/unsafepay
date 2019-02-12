@@ -27,6 +27,7 @@ import base64
 import git
 import hashlib
 import binascii
+from fiat_rate import Fiat
 
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
@@ -34,6 +35,8 @@ CH_LINK = 'https://1ml.com/channel/%s'
 CH_LINK_ALT = 'https://lightblock.me/lightning-channel/%s'
 ND_LINK = 'https://1ml.com/node/%s'
 ND_LINK_ALT = 'https://lightblock.me/lightning-node/%s'
+
+fiat = Fiat()
 
 
 def to_btc_str(sats):
@@ -46,6 +49,10 @@ def to_sat_str(msats):
 
 def amt_to_sat(amt):
     """Get sat or btc amt"""
+    symbol = set('€Ee') & set(amt)
+    if symbol:
+        eur = float(amt.replace(symbol.pop(), ''))
+        return fiat.to_satoshis(eur)
     if '.' in amt:
         return int(Decimal(amt) * Decimal(1e8))
     return int(amt)
