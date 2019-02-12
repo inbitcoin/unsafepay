@@ -24,6 +24,7 @@ from random import randint
 import telepot
 from telepot.loop import MessageLoop
 from lnd import Lncli, NodeException
+from fiat_rate import RateError
 from qr import decode, encode
 
 OVERT_COMMANDS = (
@@ -84,6 +85,8 @@ def text(msg):
                         bot.sendMessage(chat_id, ou)
         except NodeException as exception:
             bot.sendMessage(chat_id, '\u274c ' + str(exception))
+        except RateError:
+            bot.sendMessage(chat_id, '\u274c Exchange rate is not available')
     elif cmd == 'help':
         if tokens[1:] and hasattr(ln, escape_cmd(tokens[1])):
             # Return doc of the command
