@@ -19,9 +19,12 @@ import unittest
 import os
 import json
 import tempfile
+from time import time
 from os import environ
 from unittest import skipIf, mock
+from unittest.mock import patch
 from lnd import Lncli, NodeException
+from fiat_rate import Fiat
 import lncli
 import qr
 
@@ -199,6 +202,54 @@ class TestQr(unittest.TestCase):
             qr.encode(PAY_REQ, fd)
         self.assertEqual(qr.decode(name), PAY_REQ)
         os.remove(name)
+
+
+class FiatRate(unittest.TestCase):
+
+    CACHE = {'eur': (3000, time())}
+
+    def test_cached(self):
+
+        fiat = Fiat()
+        # Import cache
+        fiat._cache = self.CACHE
+
+        self.assertEqual(fiat.get_rate(), self.CACHE['eur'][0])
+        self.assertEqual(fiat.to_fiat(1), 0)
+        self.assertEqual(fiat.to_fiat(0.001 * 1e8), 0.001 * self.CACHE['eur'][0])
+        self.assertEqual(fiat.to_satoshis(5), int(5 / self.CACHE['eur'][0] * 1e8))
+        self.assertRegex(fiat.to_fiat_str(1), '^\d*\.\d{2} €')
+        self.assertRegex(fiat.to_fiat_str(7), '^\d*\.\d{2} €')
+        self.assertRegex(fiat.to_fiat_str(1000), '^\d*\.\d{2} €')
+
+    @patch('requests.get')
+    def test_kraken_mock(self, mock_get):
+
+        class FakeRequests:
+            """We should use mock here"""
+            DATA = {
+                'error': [],
+                'result': {'XXBTZEUR': {
+                    'a': ['3184.60000', '14', '14.000'],
+                    'b': ['3184.50000', '3', '3.000'],
+                    'c': ['3184.50000', '0.22166006'],
+                    'h': ['3198.70000', '3198.70000'],
+                    'l': ['3145.70000', '3145.70000'],
+                    'o': '3186.90000',
+                    'p': ['3174.51858', '3174.90884'],
+                    't': [12463, 13595],
+                    'v': ['3591.35599872', '3810.41919298']}
+                }
+            }
+
+            def json(self):
+                return self.DATA
+
+        mock_get.return_value = FakeRequests()
+        expected_price = float(FakeRequests.DATA['result']['XXBTZEUR']['c'][0])
+
+        fiat = Fiat()
+        self.assertAlmostEqual(fiat.get_rate(), expected_price)
 
 
 if __name__ == '__main__':

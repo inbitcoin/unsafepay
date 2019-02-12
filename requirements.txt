@@ -2,3 +2,4 @@ telepot==12.7
 pyzbar==0.1.7
 Pillow==5.1.0
 qrcode==6.0
+requests==2.21.0
