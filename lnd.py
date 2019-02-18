@@ -27,6 +27,7 @@ import base64
 import git
 import hashlib
 import binascii
+from os import environ
 from fiat_rate import Fiat
 
 _24H = 60 * 60 * 24
@@ -67,6 +68,10 @@ class Lncli:
     CMD = 'lncli'
 
     def __init__(self):
+        self._cmd = [self.CMD]
+        if 'LNDDIR' in environ:
+            self._cmd.append('--lnddir')
+            self._cmd.append(environ['LNDDIR'])
         self._1ml = True
         self._lightblock = True
         self.aliases = {}
@@ -76,9 +81,9 @@ class Lncli:
 
     @staticmethod
     def _command(*cmd):
-        print('$', Lncli.CMD, *cmd, sep='  ')
+        print('$', *self._cmd, *cmd, sep='  ')
         process = subprocess.Popen(
-            [Lncli.CMD] + list(cmd),
+            self._cmd + list(cmd),
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
         if process.returncode == 0:
