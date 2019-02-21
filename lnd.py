@@ -79,8 +79,7 @@ class Lncli:
         self._updated = 0
         self.update_aliases()
 
-    @staticmethod
-    def _command(*cmd):
+    def _command(self, *cmd):
         print('$', *self._cmd, *cmd, sep='  ')
         process = subprocess.Popen(
             self._cmd + list(cmd),
