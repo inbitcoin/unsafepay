@@ -199,6 +199,27 @@ class TestLnd(unittest.TestCase):
         with self.assertRaises(NodeException):
             self.ln.add(str(int(1e8)))
 
+    @unittest.skipUnless(LNCLI_MOCK, "Differences between ./lncli and lncli")
+    def test_payment_path(self):
+
+        def count_lines(string):
+            return len(string.split('\n'))
+
+        MockIndex.set('payinvoice', 0)
+        self.assertEqual(count_lines(self.ln.pay(PAY_REQ)), 3)
+        # Amount: 0.0xxxxxxx btc
+        # Fee: x.xxx sat
+        # # hops: x
+
+        MockIndex.set('payinvoice', 1)
+        self.assertEqual(count_lines(self.ln.pay(PAY_REQ)), 3 + 1 + 2)
+        # Amount: 0.0xxxxxxx btc
+        # Fee: x.xxx sat
+        # # hops: x
+        # Path:
+        # Alias0
+        # Alias1
+
 
 class TestQr(unittest.TestCase):
 

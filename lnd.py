@@ -154,6 +154,15 @@ class Lncli:
             rows.append('Fee: %s sat' % to_sat_str(
                 route['total_fees_msat'] if 'total_fees_msat' in route else 0))
             rows.append('# hops: %d' % len(route['hops']))
+
+            nodes = []
+            for hop in route['hops']:
+                if 'pub_key' in hop:
+                    nodes.append(self._alias(hop['pub_key']))
+            if nodes:
+                rows.append('Path:')
+                rows.extend(nodes)
+
         return '\n'.join(rows)
 
     def add(self, amt=None):
