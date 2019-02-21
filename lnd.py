@@ -29,6 +29,7 @@ import hashlib
 import binascii
 from os import environ
 from fiat_rate import Fiat
+from cities import read_cities
 
 _24H = 60 * 60 * 24
 TX_LINK = 'https://www.smartbit.com.au/tx/%s'
@@ -251,8 +252,7 @@ class Lncli:
         CITYSCAPE = '\U0001f3d9'
         CITY_DUSK = '\U0001f306'
         if self._cities is None:
-            with open('cities.txt', 'rt') as fd:
-                self._cities = [x.strip() for x in fd.readlines()]
+            self._cities = read_cities()
         city = self._cities[self._int_hash_pubkey(pubkey) % len(self._cities)]
         emoji = CITY_DUSK if self.aliases else CITYSCAPE
         return emoji + ' ' + city
