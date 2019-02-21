@@ -212,10 +212,9 @@ class TestLnd(unittest.TestCase):
         # # hops: x
 
         MockIndex.set('payinvoice', 1)
-        self.assertEqual(count_lines(self.ln.pay(PAY_REQ)), 3 + 1 + 2)
+        self.assertEqual(count_lines(self.ln.pay(PAY_REQ)), 2 + 1 + 2)
         # Amount: 0.0xxxxxxx btc
         # Fee: x.xxx sat
-        # # hops: x
         # Path:
         # Alias0
         # Alias1
